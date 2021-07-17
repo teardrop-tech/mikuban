@@ -1,9 +1,10 @@
 const path = require("path");
 const ESLintPlugin = require("eslint-webpack-plugin");
+const Dotenv = require("dotenv-webpack");
 
 module.exports = {
   mode: "development",
-  entry: "./src/js/index.js",
+  entry: "./src/index.ts",
   output: {
     filename: "bundle.js",
     path: path.join(__dirname, "dist"),
@@ -18,8 +19,9 @@ module.exports = {
       },
     ],
   },
-  plugins: [new ESLintPlugin()],
+  plugins: [new ESLintPlugin(), new Dotenv()],
   resolve: {
     extensions: [".ts", ".js"],
   },
+  devtool: "inline-source-map",
 };
