@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "target": "es5",
-    "allowJs": true,
+    "target": "esnext",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
