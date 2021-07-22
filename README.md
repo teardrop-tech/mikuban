@@ -25,7 +25,7 @@ npm run start
 ngrok http --host-header=rewrite 8080
 ```
 
-Open <https://developer.textalive.jp/app> and input `TextAlive App URL` to `https` url in ngrok
+Open <https://developer.textalive.jp/app/run/> and input `TextAlive App URL` to `https` url in ngrok
 
 ### Build and check
 
