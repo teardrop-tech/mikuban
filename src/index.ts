@@ -1,4 +1,12 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
+import {
+  WebGLRenderer,
+  Scene,
+  PerspectiveCamera,
+  BoxGeometry,
+  MeshNormalMaterial,
+  Mesh,
+} from "three";
 
 type Nullable<T> = T | null;
 
@@ -162,6 +170,27 @@ const handlePlayer = (player: Player) => ({
     },
 });
 
+const threeJsSample = async () => {
+  const renderer = new WebGLRenderer({
+    canvas: document.querySelector("#three") as HTMLCanvasElement,
+  });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(640, 380);
+  const scene = new Scene();
+  const camera = new PerspectiveCamera(45, 640 / 380);
+  camera.position.set(0, 0, 1000);
+  const geometry = new BoxGeometry(400, 400, 400);
+  const material = new MeshNormalMaterial();
+  const box = new Mesh(geometry, material);
+  scene.add(box);
+  const tick = () => {
+    box.rotation.y += 0.01;
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  };
+  tick();
+};
+
 window.onload = () => {
   const player = new Player({
     app: {
@@ -220,4 +249,6 @@ window.onload = () => {
     onPause,
     onStop,
   });
+
+  threeJsSample();
 };
