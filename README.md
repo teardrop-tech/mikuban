@@ -1,4 +1,4 @@
-# mm2021
+# mm2021 [![GitHub Actions Status](https://github.com/teardrop-tech/mm2021/actions/workflows/build.yml/badge.svg)](https://github.com/teardrop-tech/mm2021/actions)
 
 ### Setup
 
