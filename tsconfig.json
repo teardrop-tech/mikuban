@@ -11,11 +11,12 @@
     "resolveJsonModule": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "allowJs": true
   },
   "include": [
-    "src/**/*",
+    "src/**/*"
   ],
   "exclude": [
-    "node_modules",
+    "node_modules"
   ]
 }

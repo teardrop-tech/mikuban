@@ -5,6 +5,7 @@
     "build": "webpack --mode production"
   },
   "devDependencies": {
+    "@types/opentype.js": "^1.3.2",
     "@types/three": "^0.130.1",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
@@ -20,6 +21,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "opentype.js": "^1.3.3",
     "textalive-app-api": "^0.3.0",
     "three": "^0.130.1"
   }
