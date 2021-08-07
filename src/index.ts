@@ -1,16 +1,17 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
-import {
-  WebGLRenderer,
-  Scene,
-  PerspectiveCamera,
-  BoxGeometry,
-  MeshNormalMaterial,
-  Mesh,
-} from "three";
+import * as THREE from "three";
+
+import { TTFLoader } from "./loader/ttf-loader";
 
 type Nullable<T> = T | null;
 
-const handlePlayer = (player: Player) => ({
+const handlePlayer = ({
+  player,
+  three,
+}: {
+  player: Player;
+  three: ThreeWrapper;
+}) => ({
   handleOnAppReady: (app: IPlayerApp) => {
     if (!app.songUrl) {
       player.createFromSongUrl("http://www.youtube.com/watch?v=Ch4RQPG1Tmo");
@@ -46,6 +47,7 @@ const handlePlayer = (player: Player) => ({
         phrase.animate = (now, u) => {
           if (u.contains(now) && elements.phrase) {
             elements.phrase.textContent = u.text;
+            three.updateText(u.text);
           }
         };
       }
@@ -72,6 +74,7 @@ const handlePlayer = (player: Player) => ({
             }
             if (elements.phrase) {
               elements.phrase.textContent = "-";
+              three.updateText();
             }
             const progress = parseFloat(button.value) / 100;
             player.video && player.requestMediaSeek(progress * songLengthMs);
@@ -156,6 +159,7 @@ const handlePlayer = (player: Player) => ({
       }
       if (elements.phrase) {
         elements.phrase.textContent = "-";
+        three.updateText();
       }
     },
   handleOnStop:
@@ -166,32 +170,74 @@ const handlePlayer = (player: Player) => ({
       }
       if (elements.phrase) {
         elements.phrase.textContent = "-";
+        three.updateText();
       }
     },
 });
 
-const threeJsSample = async () => {
-  const renderer = new WebGLRenderer({
-    canvas: document.querySelector("#three") as HTMLCanvasElement,
-  });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(640, 380);
-  const scene = new Scene();
-  const camera = new PerspectiveCamera(45, 640 / 380);
-  camera.position.set(0, 0, 1000);
-  const geometry = new BoxGeometry(400, 400, 400);
-  const material = new MeshNormalMaterial();
-  const box = new Mesh(geometry, material);
-  scene.add(box);
-  const tick = () => {
-    box.rotation.y += 0.01;
-    renderer.render(scene, camera);
-    requestAnimationFrame(tick);
-  };
-  tick();
-};
+interface ThreeWrapper {
+  scene: THREE.Scene;
+  font: THREE.Font;
+  play: () => void;
+  updateText: (text?: string) => void;
+}
 
-window.onload = () => {
+const setupThree = (): Promise<ThreeWrapper> =>
+  new Promise((resolve) => {
+    const renderer = new THREE.WebGLRenderer({
+      canvas: document.querySelector("#three") as HTMLCanvasElement,
+    });
+    renderer.setClearColor(0x3d5347, 1);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(640, 380);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 640 / 380);
+    camera.position.set(50, -100, 300);
+    camera.lookAt(scene.position);
+    scene.add(new THREE.AxesHelper(1000));
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(ambientLight);
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(40, 40, 40),
+      new THREE.MeshNormalMaterial()
+    );
+    scene.add(box);
+    const loader = new TTFLoader();
+    loader.load("./public/Osaka.ttf", (json: any) => {
+      const font = new THREE.FontLoader().parse(json);
+      let mesh: THREE.Mesh;
+      resolve({
+        scene,
+        font,
+        play: tick,
+        updateText: (text = "みなとみらい") => {
+          mesh && scene.remove(mesh);
+          mesh = new THREE.Mesh(
+            new THREE.TextGeometry(text, {
+              font,
+              size: 40,
+              height: 3,
+              curveSegments: 12,
+            }).center(),
+            new THREE.MeshLambertMaterial({ color: 0xffffff })
+          );
+          scene.add(mesh);
+        },
+      });
+    });
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(0, 0, 1).normalize();
+    scene.add(directionalLight);
+    const tick = () => {
+      box.rotation.y += 0.01;
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    };
+  });
+
+window.onload = async () => {
+  const three = await setupThree();
+
   const player = new Player({
     app: {
       token: process.env.TOKEN ?? "",
@@ -199,6 +245,7 @@ window.onload = () => {
     valenceArousalEnabled: true,
     vocalAmplitudeEnabled: true,
   });
+
   const {
     handleOnAppReady: onAppReady,
     handleOnVideoReady,
@@ -209,7 +256,10 @@ window.onload = () => {
     handleOnPlay: onPlay,
     handleOnPause,
     handleOnStop,
-  } = handlePlayer(player);
+  } = handlePlayer({
+    player,
+    three,
+  });
   const onVideoReady = handleOnVideoReady({
     artist: document.querySelector("#artist span"),
     song: document.querySelector("#song span"),
@@ -250,5 +300,5 @@ window.onload = () => {
     onStop,
   });
 
-  threeJsSample();
+  three.play();
 };
