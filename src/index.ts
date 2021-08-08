@@ -24,96 +24,96 @@ const handlePlayer = ({
       word: Nullable<Element>;
       phrase: Nullable<Element>;
     }) =>
-      () => {
-        const { song } = player.data;
-        if (elements.artist) {
-          elements.artist.textContent = song.artist.name;
-        }
-        if (elements.song) {
-          elements.song.textContent = song.name;
-        }
-        for (let word = player.video.firstWord; word; word = word.next) {
-          word.animate = (now, u) => {
-            if (u.contains(now) && elements.word) {
-              elements.word.textContent = u.text;
-            }
-          };
-        }
-        for (
-          let phrase = player.video.firstPhrase;
-          phrase;
-          phrase = phrase.next
-        ) {
-          phrase.animate = (now, u) => {
-            if (u.contains(now) && elements.phrase) {
-              elements.phrase.textContent = u.text;
-              three.updateText(u.text);
-            }
-          };
-        }
-      },
+    () => {
+      const { song } = player.data;
+      if (elements.artist) {
+        elements.artist.textContent = song.artist.name;
+      }
+      if (elements.song) {
+        elements.song.textContent = song.name;
+      }
+      for (let word = player.video.firstWord; word; word = word.next) {
+        word.animate = (now, u) => {
+          if (u.contains(now) && elements.word) {
+            elements.word.textContent = u.text;
+          }
+        };
+      }
+      for (
+        let phrase = player.video.firstPhrase;
+        phrase;
+        phrase = phrase.next
+      ) {
+        phrase.animate = (now, u) => {
+          if (u.contains(now) && elements.phrase) {
+            elements.phrase.textContent = u.text;
+            three.updateText(u.text);
+          }
+        };
+      }
+    },
   handleOnTimerReady:
     (elements: {
       control: Nullable<HTMLElement>;
       word: Nullable<Element>;
       phrase: Nullable<Element>;
     }) =>
-      () => {
-        if (player.app.managed || !elements.control) {
-          // Hide controllers in 'TextAlive App Debugger'
+    () => {
+      if (player.app.managed || !elements.control) {
+        // Hide controllers in 'TextAlive App Debugger'
+        return;
+      }
+      elements.control.style.display = "block";
+      elements.control.childNodes.forEach((button) => {
+        if (button instanceof HTMLInputElement) {
+          const songLengthMs = player.data.song.length * 1000;
+          button.oninput = (ev) => {
+            ev.preventDefault();
+            if (elements.word) {
+              elements.word.textContent = "-";
+            }
+            if (elements.phrase) {
+              elements.phrase.textContent = "-";
+              three.updateText();
+            }
+            const progress = parseFloat(button.value) / 100;
+            player.video && player.requestMediaSeek(progress * songLengthMs);
+          };
+        }
+        if (!(button instanceof HTMLButtonElement)) {
           return;
         }
-        elements.control.style.display = "block";
-        elements.control.childNodes.forEach((button) => {
-          if (button instanceof HTMLInputElement) {
-            const songLengthMs = player.data.song.length * 1000;
-            button.oninput = (ev) => {
+        button.disabled = false;
+        switch (button.id) {
+          case "play":
+            button.onclick = (ev) => {
               ev.preventDefault();
-              if (elements.word) {
-                elements.word.textContent = "-";
-              }
-              if (elements.phrase) {
-                elements.phrase.textContent = "-";
-                three.updateText();
-              }
-              const progress = parseFloat(button.value) / 100;
-              player.video && player.requestMediaSeek(progress * songLengthMs);
+              player.video && player.requestPlay();
             };
-          }
-          if (!(button instanceof HTMLButtonElement)) {
-            return;
-          }
-          button.disabled = false;
-          switch (button.id) {
-            case "play":
-              button.onclick = (ev) => {
-                ev.preventDefault();
-                player.video && player.requestPlay();
-              };
-              break;
-            case "jump":
-              button.disabled = !player.video.firstChar;
-              button.onclick = (ev) => {
-                ev.preventDefault();
-                player.video &&
-                  player.requestMediaSeek(player.video.firstChar.startTime);
-              };
-              break;
-            case "pause":
-              button.onclick = (ev) => {
-                ev.preventDefault();
-                player.video && player.requestPause();
-              };
-              break;
-            case "stop":
-              button.onclick = (ev) => {
-                ev.preventDefault();
-                player.video && player.requestStop();
-              };
-              break;
-          }
-        });
-      },
+            break;
+          case "jump":
+            button.disabled = !player.video.firstChar;
+            button.onclick = (ev) => {
+              ev.preventDefault();
+              player.video &&
+                player.requestMediaSeek(player.video.firstChar.startTime);
+            };
+            break;
+          case "pause":
+            button.onclick = (ev) => {
+              ev.preventDefault();
+              player.video && player.requestPause();
+            };
+            break;
+          case "stop":
+            button.onclick = (ev) => {
+              ev.preventDefault();
+              player.video && player.requestStop();
+            };
+            break;
+        }
+      });
+    },
   handleOnTimeUpdate:
     (elements: {
       beats: Nullable<Element>;
@@ -121,58 +121,58 @@ const handlePlayer = ({
       va: Nullable<Element>;
       amplitude: Nullable<Element>;
     }) =>
-      (position: number) => {
-        const beat = player.findBeat(position);
-        if (beat && elements.beats) {
-          const progress = Math.ceil(Ease.circIn(beat.progress(position)) * 100);
-          elements.beats.textContent = `${beat.position} / ${beat.length} [${progress}%]`;
-        }
-        const chord = player.findChord(position);
-        if (chord && elements.chords) {
-          elements.chords.textContent = chord.name;
-        }
-        const va = player.getValenceArousal(position);
-        if (va && elements.va) {
-          elements.va.textContent = `${va.v} / ${va.a}`;
-        }
-        const amplitude = player.getVocalAmplitude(position);
-        if (amplitude && elements.amplitude) {
-          elements.amplitude.textContent = amplitude.toString();
-        }
-      },
+    (position: number) => {
+      const beat = player.findBeat(position);
+      if (beat && elements.beats) {
+        const progress = Math.ceil(Ease.circIn(beat.progress(position)) * 100);
+        elements.beats.textContent = `${beat.position} / ${beat.length} [${progress}%]`;
+      }
+      const chord = player.findChord(position);
+      if (chord && elements.chords) {
+        elements.chords.textContent = chord.name;
+      }
+      const va = player.getValenceArousal(position);
+      if (va && elements.va) {
+        elements.va.textContent = `${va.v} / ${va.a}`;
+      }
+      const amplitude = player.getVocalAmplitude(position);
+      if (amplitude && elements.amplitude) {
+        elements.amplitude.textContent = amplitude.toString();
+      }
+    },
   handleOnThrottledTimeUpdate:
     (elements: { position: Nullable<HTMLInputElement> }) =>
-      (position: number) => {
-        if (elements.position) {
-          const songLengthMs = player.data.song.length * 1000;
-          elements.position.value = String((position / songLengthMs) * 100);
-        }
-      },
+    (position: number) => {
+      if (elements.position) {
+        const songLengthMs = player.data.song.length * 1000;
+        elements.position.value = String((position / songLengthMs) * 100);
+      }
+    },
   handleOnMediaSeek: () => (position: number) =>
     console.log(`🏃‍♂️ Change seek to ${position} ms`),
   handleOnPlay: () => console.log("▶️ Start playing"),
   handleOnPause:
     (elements: { word: Nullable<Element>; phrase: Nullable<Element> }) =>
-      () => {
-        if (elements.word) {
-          elements.word.textContent = "-";
-        }
-        if (elements.phrase) {
-          elements.phrase.textContent = "-";
-          three.updateText();
-        }
-      },
+    () => {
+      if (elements.word) {
+        elements.word.textContent = "-";
+      }
+      if (elements.phrase) {
+        elements.phrase.textContent = "-";
+        three.updateText();
+      }
+    },
   handleOnStop:
     (elements: { word: Nullable<Element>; phrase: Nullable<Element> }) =>
-      () => {
-        if (elements.word) {
-          elements.word.textContent = "-";
-        }
-        if (elements.phrase) {
-          elements.phrase.textContent = "-";
-          three.updateText();
-        }
-      },
+    () => {
+      if (elements.word) {
+        elements.word.textContent = "-";
+      }
+      if (elements.phrase) {
+        elements.phrase.textContent = "-";
+        three.updateText();
+      }
+    },
 });
 
 interface ThreeWrapper {
