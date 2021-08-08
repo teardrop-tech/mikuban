@@ -14,7 +14,7 @@ const handlePlayer = ({
 }) => ({
   handleOnAppReady: (app: IPlayerApp) => {
     if (!app.songUrl) {
-      player.createFromSongUrl("http://www.youtube.com/watch?v=Ch4RQPG1Tmo");
+      player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
     }
   },
   handleOnVideoReady:
@@ -24,96 +24,96 @@ const handlePlayer = ({
       word: Nullable<Element>;
       phrase: Nullable<Element>;
     }) =>
-    () => {
-      const { song } = player.data;
-      if (elements.artist) {
-        elements.artist.textContent = song.artist.name;
-      }
-      if (elements.song) {
-        elements.song.textContent = song.name;
-      }
-      for (let word = player.video.firstWord; word; word = word.next) {
-        word.animate = (now, u) => {
-          if (u.contains(now) && elements.word) {
-            elements.word.textContent = u.text;
-          }
-        };
-      }
-      for (
-        let phrase = player.video.firstPhrase;
-        phrase;
-        phrase = phrase.next
-      ) {
-        phrase.animate = (now, u) => {
-          if (u.contains(now) && elements.phrase) {
-            elements.phrase.textContent = u.text;
-            three.updateText(u.text);
-          }
-        };
-      }
-    },
+      () => {
+        const { song } = player.data;
+        if (elements.artist) {
+          elements.artist.textContent = song.artist.name;
+        }
+        if (elements.song) {
+          elements.song.textContent = song.name;
+        }
+        for (let word = player.video.firstWord; word; word = word.next) {
+          word.animate = (now, u) => {
+            if (u.contains(now) && elements.word) {
+              elements.word.textContent = u.text;
+            }
+          };
+        }
+        for (
+          let phrase = player.video.firstPhrase;
+          phrase;
+          phrase = phrase.next
+        ) {
+          phrase.animate = (now, u) => {
+            if (u.contains(now) && elements.phrase) {
+              elements.phrase.textContent = u.text;
+              three.updateText(u.text);
+            }
+          };
+        }
+      },
   handleOnTimerReady:
     (elements: {
       control: Nullable<HTMLElement>;
       word: Nullable<Element>;
       phrase: Nullable<Element>;
     }) =>
-    () => {
-      if (player.app.managed || !elements.control) {
-        // Hide controllers in 'TextAlive App Debugger'
-        return;
-      }
-      elements.control.style.display = "block";
-      elements.control.childNodes.forEach((button) => {
-        if (button instanceof HTMLInputElement) {
-          const songLengthMs = player.data.song.length * 1000;
-          button.oninput = (ev) => {
-            ev.preventDefault();
-            if (elements.word) {
-              elements.word.textContent = "-";
-            }
-            if (elements.phrase) {
-              elements.phrase.textContent = "-";
-              three.updateText();
-            }
-            const progress = parseFloat(button.value) / 100;
-            player.video && player.requestMediaSeek(progress * songLengthMs);
-          };
-        }
-        if (!(button instanceof HTMLButtonElement)) {
+      () => {
+        if (player.app.managed || !elements.control) {
+          // Hide controllers in 'TextAlive App Debugger'
           return;
         }
-        button.disabled = false;
-        switch (button.id) {
-          case "play":
-            button.onclick = (ev) => {
+        elements.control.style.display = "block";
+        elements.control.childNodes.forEach((button) => {
+          if (button instanceof HTMLInputElement) {
+            const songLengthMs = player.data.song.length * 1000;
+            button.oninput = (ev) => {
               ev.preventDefault();
-              player.video && player.requestPlay();
+              if (elements.word) {
+                elements.word.textContent = "-";
+              }
+              if (elements.phrase) {
+                elements.phrase.textContent = "-";
+                three.updateText();
+              }
+              const progress = parseFloat(button.value) / 100;
+              player.video && player.requestMediaSeek(progress * songLengthMs);
             };
-            break;
-          case "jump":
-            button.disabled = !player.video.firstChar;
-            button.onclick = (ev) => {
-              ev.preventDefault();
-              player.video &&
-                player.requestMediaSeek(player.video.firstChar.startTime);
-            };
-            break;
-          case "pause":
-            button.onclick = (ev) => {
-              ev.preventDefault();
-              player.video && player.requestPause();
-            };
-            break;
-          case "stop":
-            button.onclick = (ev) => {
-              ev.preventDefault();
-              player.video && player.requestStop();
-            };
-            break;
-        }
-      });
-    },
+          }
+          if (!(button instanceof HTMLButtonElement)) {
+            return;
+          }
+          button.disabled = false;
+          switch (button.id) {
+            case "play":
+              button.onclick = (ev) => {
+                ev.preventDefault();
+                player.video && player.requestPlay();
+              };
+              break;
+            case "jump":
+              button.disabled = !player.video.firstChar;
+              button.onclick = (ev) => {
+                ev.preventDefault();
+                player.video &&
+                  player.requestMediaSeek(player.video.firstChar.startTime);
+              };
+              break;
+            case "pause":
+              button.onclick = (ev) => {
+                ev.preventDefault();
+                player.video && player.requestPause();
+              };
+              break;
+            case "stop":
+              button.onclick = (ev) => {
+                ev.preventDefault();
+                player.video && player.requestStop();
+              };
+              break;
+          }
+        });
+      },
   handleOnTimeUpdate:
     (elements: {
       beats: Nullable<Element>;
@@ -121,58 +121,58 @@ const handlePlayer = ({
       va: Nullable<Element>;
       amplitude: Nullable<Element>;
     }) =>
-    (position: number) => {
-      const beat = player.findBeat(position);
-      if (beat && elements.beats) {
-        const progress = Math.ceil(Ease.circIn(beat.progress(position)) * 100);
-        elements.beats.textContent = `${beat.position} / ${beat.length} [${progress}%]`;
-      }
-      const chord = player.findChord(position);
-      if (chord && elements.chords) {
-        elements.chords.textContent = chord.name;
-      }
-      const va = player.getValenceArousal(position);
-      if (va && elements.va) {
-        elements.va.textContent = `${va.v} / ${va.a}`;
-      }
-      const amplitude = player.getVocalAmplitude(position);
-      if (amplitude && elements.amplitude) {
-        elements.amplitude.textContent = amplitude.toString();
-      }
-    },
+      (position: number) => {
+        const beat = player.findBeat(position);
+        if (beat && elements.beats) {
+          const progress = Math.ceil(Ease.circIn(beat.progress(position)) * 100);
+          elements.beats.textContent = `${beat.position} / ${beat.length} [${progress}%]`;
+        }
+        const chord = player.findChord(position);
+        if (chord && elements.chords) {
+          elements.chords.textContent = chord.name;
+        }
+        const va = player.getValenceArousal(position);
+        if (va && elements.va) {
+          elements.va.textContent = `${va.v} / ${va.a}`;
+        }
+        const amplitude = player.getVocalAmplitude(position);
+        if (amplitude && elements.amplitude) {
+          elements.amplitude.textContent = amplitude.toString();
+        }
+      },
   handleOnThrottledTimeUpdate:
     (elements: { position: Nullable<HTMLInputElement> }) =>
-    (position: number) => {
-      if (elements.position) {
-        const songLengthMs = player.data.song.length * 1000;
-        elements.position.value = String((position / songLengthMs) * 100);
-      }
-    },
+      (position: number) => {
+        if (elements.position) {
+          const songLengthMs = player.data.song.length * 1000;
+          elements.position.value = String((position / songLengthMs) * 100);
+        }
+      },
   handleOnMediaSeek: () => (position: number) =>
     console.log(`🏃‍♂️ Change seek to ${position} ms`),
   handleOnPlay: () => console.log("▶️ Start playing"),
   handleOnPause:
     (elements: { word: Nullable<Element>; phrase: Nullable<Element> }) =>
-    () => {
-      if (elements.word) {
-        elements.word.textContent = "-";
-      }
-      if (elements.phrase) {
-        elements.phrase.textContent = "-";
-        three.updateText();
-      }
-    },
+      () => {
+        if (elements.word) {
+          elements.word.textContent = "-";
+        }
+        if (elements.phrase) {
+          elements.phrase.textContent = "-";
+          three.updateText();
+        }
+      },
   handleOnStop:
     (elements: { word: Nullable<Element>; phrase: Nullable<Element> }) =>
-    () => {
-      if (elements.word) {
-        elements.word.textContent = "-";
-      }
-      if (elements.phrase) {
-        elements.phrase.textContent = "-";
-        three.updateText();
-      }
-    },
+      () => {
+        if (elements.word) {
+          elements.word.textContent = "-";
+        }
+        if (elements.phrase) {
+          elements.phrase.textContent = "-";
+          three.updateText();
+        }
+      },
 });
 
 interface ThreeWrapper {
@@ -180,6 +180,13 @@ interface ThreeWrapper {
   font: THREE.Font;
   play: () => void;
   updateText: (text?: string) => void;
+
+  /**
+   * 画面のリサイズ
+   * @param {number} width 画面の幅
+   * @param {number} height 画面の高さ
+   */
+  resizeDisplay: (width: number, height: number) => void;
 }
 
 const setupThree = (): Promise<ThreeWrapper> =>
@@ -187,12 +194,18 @@ const setupThree = (): Promise<ThreeWrapper> =>
     const renderer = new THREE.WebGLRenderer({
       canvas: document.querySelector("#three") as HTMLCanvasElement,
     });
+
+    const width: number = window.innerWidth;
+    const height: number = window.innerHeight;
+    const aspect: number = width / height;
+
     renderer.setClearColor(0x3d5347, 1);
+    renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(640, 380);
+
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 640 / 380);
-    camera.position.set(50, -100, 300);
+    const camera = new THREE.PerspectiveCamera(45, aspect);
+    camera.position.set(0, 0, 500);
     camera.lookAt(scene.position);
     scene.add(new THREE.AxesHelper(1000));
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -201,6 +214,7 @@ const setupThree = (): Promise<ThreeWrapper> =>
       new THREE.BoxGeometry(40, 40, 40),
       new THREE.MeshNormalMaterial()
     );
+    box.translateY(100);
     scene.add(box);
     const loader = new TTFLoader();
     loader.load("./public/TanukiMagic.ttf", (json: any) => {
@@ -210,18 +224,23 @@ const setupThree = (): Promise<ThreeWrapper> =>
         scene,
         font,
         play: tick,
-        updateText: (text = "みなとみらい") => {
+        updateText: (text = "-") => {
           mesh && scene.remove(mesh);
           mesh = new THREE.Mesh(
             new THREE.TextGeometry(text, {
               font,
-              size: 40,
+              size: 24,
               height: 3,
               curveSegments: 12,
             }).center(),
             new THREE.MeshLambertMaterial({ color: 0xffffff })
           );
           scene.add(mesh);
+        },
+        resizeDisplay: (width, height) => {
+          renderer.setSize(width, height);
+          renderer.setPixelRatio(window.devicePixelRatio);
+          camera.aspect = width / height;
         },
       });
     });
@@ -234,6 +253,9 @@ const setupThree = (): Promise<ThreeWrapper> =>
 
 window.onload = async () => {
   const three = await setupThree();
+
+  // 画面リサイズ時のコールバックの設定
+  window.addEventListener('resize', resizeDisplay(three));
 
   const player = new Player({
     app: {
@@ -298,4 +320,14 @@ window.onload = async () => {
   });
 
   three.play();
+};
+
+/**
+ * 画面のリサイズ
+ * @param {ThreeWrapper} three ThreeWrapperインスタンス  
+ */
+const resizeDisplay = (three: ThreeWrapper) => () => {
+  const width: number = window.innerWidth;
+  const height: number = window.innerHeight;
+  three.resizeDisplay(width, height);
 };
