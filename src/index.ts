@@ -203,7 +203,7 @@ const setupThree = (): Promise<ThreeWrapper> =>
     );
     scene.add(box);
     const loader = new TTFLoader();
-    loader.load("./public/Osaka.ttf", (json: any) => {
+    loader.load("./public/TanukiMagic.ttf", (json: any) => {
       const font = new THREE.FontLoader().parse(json);
       let mesh: THREE.Mesh;
       resolve({
@@ -225,9 +225,6 @@ const setupThree = (): Promise<ThreeWrapper> =>
         },
       });
     });
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(0, 0, 1).normalize();
-    scene.add(directionalLight);
     const tick = () => {
       box.rotation.y += 0.01;
       renderer.render(scene, camera);
