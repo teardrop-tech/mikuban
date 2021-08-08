@@ -225,9 +225,6 @@ const setupThree = (): Promise<ThreeWrapper> =>
         },
       });
     });
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(0, 0, 1).normalize();
-    scene.add(directionalLight);
     const tick = () => {
       box.rotation.y += 0.01;
       renderer.render(scene, camera);
