@@ -14,7 +14,7 @@ const handlePlayer = ({
 }) => ({
   handleOnAppReady: (app: IPlayerApp) => {
     if (!app.songUrl) {
-      player.createFromSongUrl("http://www.youtube.com/watch?v=Ch4RQPG1Tmo");
+      player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
     }
   },
   handleOnVideoReady:
@@ -180,6 +180,13 @@ interface ThreeWrapper {
   font: THREE.Font;
   play: () => void;
   updateText: (text?: string) => void;
+
+  /**
+   * 画面のリサイズ
+   * @param {number} width 画面の幅
+   * @param {number} height 画面の高さ
+   */
+  resizeDisplay: (width: number, height: number) => void;
 }
 
 const setupThree = (): Promise<ThreeWrapper> =>
@@ -187,12 +194,18 @@ const setupThree = (): Promise<ThreeWrapper> =>
     const renderer = new THREE.WebGLRenderer({
       canvas: document.querySelector("#three") as HTMLCanvasElement,
     });
+
+    const width: number = window.innerWidth;
+    const height: number = window.innerHeight;
+    const aspect: number = width / height;
+
     renderer.setClearColor(0x3d5347, 1);
+    renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(640, 380);
+
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 640 / 380);
-    camera.position.set(50, -100, 300);
+    const camera = new THREE.PerspectiveCamera(45, aspect);
+    camera.position.set(0, 0, 500);
     camera.lookAt(scene.position);
     scene.add(new THREE.AxesHelper(1000));
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -201,6 +214,7 @@ const setupThree = (): Promise<ThreeWrapper> =>
       new THREE.BoxGeometry(40, 40, 40),
       new THREE.MeshNormalMaterial()
     );
+    box.translateY(100);
     scene.add(box);
     const loader = new TTFLoader();
     loader.load("./public/TanukiMagic.ttf", (json: unknown) => {
@@ -210,18 +224,23 @@ const setupThree = (): Promise<ThreeWrapper> =>
         scene,
         font,
         play: tick,
-        updateText: (text = "みなとみらい") => {
+        updateText: (text = "-") => {
           mesh && scene.remove(mesh);
           mesh = new THREE.Mesh(
             new THREE.TextGeometry(text, {
               font,
-              size: 40,
+              size: 24,
               height: 3,
               curveSegments: 12,
             }).center(),
             new THREE.MeshLambertMaterial({ color: 0xffffff })
           );
           scene.add(mesh);
+        },
+        resizeDisplay: (width, height) => {
+          renderer.setSize(width, height);
+          renderer.setPixelRatio(window.devicePixelRatio);
+          camera.aspect = width / height;
         },
       });
     });
@@ -234,6 +253,9 @@ const setupThree = (): Promise<ThreeWrapper> =>
 
 window.onload = async () => {
   const three = await setupThree();
+
+  // 画面リサイズ時のコールバックの設定
+  window.addEventListener("resize", resizeDisplay(three));
 
   const player = new Player({
     app: {
@@ -298,4 +320,14 @@ window.onload = async () => {
   });
 
   three.play();
+};
+
+/**
+ * 画面のリサイズ
+ * @param {ThreeWrapper} three ThreeWrapperインスタンス
+ */
+const resizeDisplay = (three: ThreeWrapper) => () => {
+  const width: number = window.innerWidth;
+  const height: number = window.innerHeight;
+  three.resizeDisplay(width, height);
 };
