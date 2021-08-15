@@ -75,6 +75,30 @@ class Paint {
       if (!this.clickFlg) return false;
       this.draw(e.offsetX, e.offsetY);
     });
+
+    this.canvas.addEventListener("touchstart", () => {
+      this.clickFlg = 1;
+    });
+
+    this.canvas.addEventListener("touchend", () => {
+      this.clickFlg = 0;
+    });
+
+    this.canvas.addEventListener("touchmove", (e) => {
+      if (!this.clickFlg) return false;
+      if (!this.canvas) return false;
+
+      const touchList: TouchList = e.changedTouches;
+      const touch: Touch | undefined = touchList[0];
+
+      // ファーストタッチのみ処理
+      if (touch) {
+        this.draw(
+          touch.clientX - this.canvas.getBoundingClientRect().left,
+          touch.clientY - this.canvas.getBoundingClientRect().top
+        );
+      }
+    });
   }
 
   /**
