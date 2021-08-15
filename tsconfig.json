@@ -10,8 +10,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "allowJs": true
+    "noUncheckedIndexedAccess": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
