@@ -18,6 +18,14 @@
         height: 100%;
         display: block;
       }
+
+      .layer-wrap {
+        position: relative;
+      }
+
+      .layer-wrap > canvas {
+        position: absolute;
+      }
     </style>
   </head>
 
@@ -65,6 +73,9 @@
       </div>
     </div>
 
-    <canvas id="three"></canvas>
+    <div class="layer-wrap">
+      <canvas id="three"></canvas>
+      <canvas id="paint"></canvas>
+    </div>
   </body>
 </html>

@@ -1,8 +1,8 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
-
+import Paint from "./paint";
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 type Nullable<T> = T | null;
 
@@ -211,10 +211,10 @@ const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
     const camera = new THREE.PerspectiveCamera(45, aspect);
     camera.position.set(0, 0, 500);
     camera.lookAt(scene.position);
-    const controls = new OrbitControls(camera, canvas);
-    controls.enableRotate = false;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.2;
+    // const controls = new OrbitControls(camera, canvas);
+    // controls.enableRotate = false;
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.2;
     if (option?.debug) {
       scene.add(new THREE.AxesHelper(1000));
     }
@@ -247,12 +247,12 @@ const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
         scene,
         font,
         play: tick,
-        updateText: (text = "-") => {
+        updateText: (text = "") => {
           mesh && scene.remove(mesh);
           mesh = new THREE.Mesh(
             new THREE.TextGeometry(text, {
               font,
-              size: 128,
+              size: 24,
               height: 0,
               bevelEnabled: true,
               bevelThickness: 0,
@@ -271,7 +271,7 @@ const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
       });
     });
     const tick = () => {
-      controls.update();
+      // controls.update();
       box.rotation.y += 0.01;
       renderer.render(scene, camera);
       requestAnimationFrame(tick);
@@ -350,6 +350,9 @@ window.onload = async () => {
   });
 
   three.play();
+
+  // ペイント初期化
+  Paint.init();
 };
 
 /**
@@ -359,5 +362,8 @@ window.onload = async () => {
 const resizeDisplay = (three: ThreeWrapper) => () => {
   const width: number = window.innerWidth;
   const height: number = window.innerHeight;
+  // three canvasのリサイズ
   three.resizeDisplay(width, height);
+  // paint canvasのリサイズ
+  Paint.setCanvasSize(width, height);
 };
