@@ -2,6 +2,7 @@ import { Player, Ease, IPlayerApp } from "textalive-app-api";
 import Paint from "./paint";
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
+import { Pane } from "tweakpane";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 type Nullable<T> = T | null;
@@ -64,7 +65,7 @@ const handlePlayer = ({
         // Hide controllers in 'TextAlive App Debugger'
         return;
       }
-      elements.control.style.display = "block";
+      elements.control.style.display = "none";
       elements.control.childNodes.forEach((button) => {
         if (button instanceof HTMLInputElement) {
           const songLengthMs = player.data.song.length * 1000;
@@ -353,6 +354,17 @@ window.onload = async () => {
 
   // ペイント初期化
   Paint.init();
+
+  // TODO: 仮実装
+  const pane = new Pane();
+  const btn = pane.addButton({
+    title: "Start",
+    label: "再生",
+  });
+  btn.on("click", () => {
+    player.video && player.requestPlay();
+    console.log("Start playing");
+  });
 };
 
 /**
