@@ -217,7 +217,7 @@ const setupThree = (): Promise<ThreeWrapper> =>
     box.translateY(100);
     scene.add(box);
     const loader = new TTFLoader();
-    loader.load("./public/TanukiMagic.ttf", (json: any) => {
+    loader.load("./public/TanukiMagic.ttf", (json: unknown) => {
       const font = new THREE.FontLoader().parse(json);
       let mesh: THREE.Mesh;
       resolve({
