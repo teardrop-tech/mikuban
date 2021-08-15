@@ -1,7 +1,8 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
-import * as THREE from "three";
 
-import { TTFLoader } from "./loader/ttf-loader";
+import * as THREE from "three";
+import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 type Nullable<T> = T | null;
 
@@ -175,6 +176,10 @@ const handlePlayer = ({
     },
 });
 
+interface ThreeOption {
+  debug?: boolean;
+}
+
 interface ThreeWrapper {
   scene: THREE.Scene;
   font: THREE.Font;
@@ -189,11 +194,10 @@ interface ThreeWrapper {
   resizeDisplay: (width: number, height: number) => void;
 }
 
-const setupThree = (): Promise<ThreeWrapper> =>
+const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
   new Promise((resolve) => {
-    const renderer = new THREE.WebGLRenderer({
-      canvas: document.querySelector("#three") as HTMLCanvasElement,
-    });
+    const canvas = document.querySelector("#three") as HTMLCanvasElement;
+    const renderer = new THREE.WebGLRenderer({ canvas });
 
     const width: number = window.innerWidth;
     const height: number = window.innerHeight;
@@ -207,7 +211,13 @@ const setupThree = (): Promise<ThreeWrapper> =>
     const camera = new THREE.PerspectiveCamera(45, aspect);
     camera.position.set(0, 0, 500);
     camera.lookAt(scene.position);
-    scene.add(new THREE.AxesHelper(1000));
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableRotate = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.2;
+    if (option?.debug) {
+      scene.add(new THREE.AxesHelper(1000));
+    }
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
     const box = new THREE.Mesh(
@@ -219,6 +229,19 @@ const setupThree = (): Promise<ThreeWrapper> =>
     const loader = new TTFLoader();
     loader.load("./public/TanukiMagic.ttf", (json: unknown) => {
       const font = new THREE.FontLoader().parse(json);
+      const texture = new THREE.TextureLoader().load("public/texture.png");
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(0.01, 0.01);
+      const material = [
+        new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          map: texture,
+          transparent: true,
+        }),
+        new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+        }),
+      ];
       let mesh: THREE.Mesh;
       resolve({
         scene,
@@ -229,11 +252,14 @@ const setupThree = (): Promise<ThreeWrapper> =>
           mesh = new THREE.Mesh(
             new THREE.TextGeometry(text, {
               font,
-              size: 24,
-              height: 3,
-              curveSegments: 12,
+              size: 128,
+              height: 0,
+              bevelEnabled: true,
+              bevelThickness: 0,
+              bevelSize: 1,
+              bevelSegments: 1,
             }).center(),
-            new THREE.MeshLambertMaterial({ color: 0xffffff })
+            material
           );
           scene.add(mesh);
         },
@@ -245,6 +271,7 @@ const setupThree = (): Promise<ThreeWrapper> =>
       });
     });
     const tick = () => {
+      controls.update();
       box.rotation.y += 0.01;
       renderer.render(scene, camera);
       requestAnimationFrame(tick);
@@ -252,7 +279,10 @@ const setupThree = (): Promise<ThreeWrapper> =>
   });
 
 window.onload = async () => {
-  const three = await setupThree();
+  const three = await setupThree({
+    debug: true,
+  });
+  three.updateText();
 
   // 画面リサイズ時のコールバックの設定
   window.addEventListener("resize", resizeDisplay(three));
