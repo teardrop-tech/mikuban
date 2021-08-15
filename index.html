@@ -12,59 +12,59 @@
         margin: 0;
         height: 100%;
       }
-  
+
       #three {
         width: 100%;
         height: 100%;
         display: block;
       }
     </style>
-
   </head>
 
-<body>
-  <div id="debug">
-    <!-- header -->
-    <div id="header">
-      <div id="meta">
-        <div id="artist"><strong>artist:</strong> <span>-</span></div>
-        <div id="song"><strong>song:</strong> <span>-</span></div>
-      </div>
+  <body>
+    <div id="debug">
       <!-- header -->
-
-      <!-- container -->
-      <div id="container">
-        <div id="lyrics">
-          <div><strong>word:</strong> <span id="text">-</span></div>
-          <div><strong>phrase:</strong> <span id="phrase">-</span></div>
-          <div><strong>beats:</strong> <span id="beats">-</span></div>
-          <div><strong>chords:</strong> <span id="chords">-</span></div>
-          <div><strong>V/A:</strong> <span id="va">-</span></div>
-          <div><strong>amplitude:</strong> <span id="amplitude">-</span></div>
+      <div id="header">
+        <div id="meta">
+          <div id="artist"><strong>artist:</strong> <span>-</span></div>
+          <div id="song"><strong>song:</strong> <span>-</span></div>
         </div>
-      </div>
-      <!-- container -->
+        <!-- header -->
 
-      <!-- container -->
-      <div id="footer">
-        <div id="control" style="display: none">
-          <button id="play">▶️ Play</button>
-          <button id="jump">⤵️ Jump</button>
-          <button id="pause">⏸ Pause</button>
-          <button id="stop">⏹ Stop</button>
-          <br />
-          <input
-            type="range"
-            id="position"
-            value="0"
-            step="0.1"
-            style="width: 280px"
-          />
+        <!-- container -->
+        <div id="container">
+          <div id="lyrics">
+            <div><strong>word:</strong> <span id="text">-</span></div>
+            <div><strong>phrase:</strong> <span id="phrase">-</span></div>
+            <div><strong>beats:</strong> <span id="beats">-</span></div>
+            <div><strong>chords:</strong> <span id="chords">-</span></div>
+            <div><strong>V/A:</strong> <span id="va">-</span></div>
+            <div><strong>amplitude:</strong> <span id="amplitude">-</span></div>
+          </div>
         </div>
+        <!-- container -->
+
+        <!-- container -->
+        <div id="footer">
+          <div id="control" style="display: none">
+            <button id="play">▶️ Play</button>
+            <button id="jump">⤵️ Jump</button>
+            <button id="pause">⏸ Pause</button>
+            <button id="stop">⏹ Stop</button>
+            <br />
+            <input
+              type="range"
+              id="position"
+              value="0"
+              step="0.1"
+              style="width: 280px"
+            />
+          </div>
+        </div>
+        <!-- container -->
       </div>
-      <!-- container -->
     </div>
 
-  <canvas id="three"></canvas>
-</body>
+    <canvas id="three"></canvas>
+  </body>
 </html>
