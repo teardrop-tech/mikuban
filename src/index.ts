@@ -16,7 +16,8 @@ const handlePlayer = ({
 }) => ({
   handleOnAppReady: (app: IPlayerApp) => {
     if (!app.songUrl) {
-      player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
+      // デフォルト選択曲
+      player.createFromSongUrl("https://piapro.jp/t/FDb1/20210213190029");
     }
   },
   handleOnVideoReady:
@@ -61,13 +62,22 @@ const handlePlayer = ({
       phrase: Nullable<Element>;
     }) =>
     () => {
+      // ローディング表示の解除
+      const spinner: HTMLElement | null = document.getElementById("loading");
+      if (spinner) {
+        spinner.classList.add("loaded");
+      }
+
+      // コントロールパネルから曲変更時は自動再生
+      if (ControlPanel.getMusicChangeFlg()) {
+        player.video && player.requestPlay();
+        ControlPanel.setMusicChangeFlg(false);
+      }
+
       if (player.app.managed || !elements.control) {
         // Hide controllers in 'TextAlive App Debugger'
         return;
       }
-
-      // コントロールパネルの表示
-      ControlPanel.init(player);
 
       elements.control.style.display = "none";
       elements.control.childNodes.forEach((button) => {
@@ -225,12 +235,6 @@ const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
     }
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
-    const box = new THREE.Mesh(
-      new THREE.BoxGeometry(40, 40, 40),
-      new THREE.MeshNormalMaterial()
-    );
-    box.translateY(100);
-    scene.add(box);
     const loader = new TTFLoader();
     loader.load("./public/TanukiMagic.ttf", (json: unknown) => {
       const font = new THREE.FontLoader().parse(json);
@@ -277,7 +281,6 @@ const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
     });
     const tick = () => {
       // controls.update();
-      box.rotation.y += 0.01;
       renderer.render(scene, camera);
       requestAnimationFrame(tick);
     };
@@ -358,6 +361,9 @@ window.onload = async () => {
 
   // ペイント初期化
   Paint.init();
+
+  // コントロールパネルの表示
+  ControlPanel.init(player);
 };
 
 /**

@@ -1,5 +1,5 @@
 import { Player } from "textalive-app-api";
-import { Pane } from "tweakpane";
+import { FolderApi, Pane, TabApi } from "tweakpane";
 
 /**
  * コントロールパネル
@@ -7,9 +7,17 @@ import { Pane } from "tweakpane";
 class ControlPanel {
   /** TextAlive Player */
   private player: Player | null | undefined;
+  /** コントロールパネル */
+  private pane: Pane | null | undefined;
+  /** タブ */
+  private tab: TabApi | null | undefined;
+  /** メディアコントロールのフォルダー */
+  private mediaFolder: FolderApi | null | undefined;
+  /** 曲変更フラグ */
+  private changeMusicFlg = false;
 
   constructor() {
-    console.log("ControlPanel Constructor");
+    console.log("ControlPanel constructor");
   }
 
   /**
@@ -19,16 +27,121 @@ class ControlPanel {
   public init(player: Player): void {
     this.player = player;
 
-    const pane = new Pane();
-    const btn = pane.addButton({
-      title: "Start",
-      label: "再生",
+    // コントロールパネルの生成
+    this.pane = new Pane({
+      title: "Control Panel",
+      expanded: false,
     });
-    btn.on("click", () => {
+
+    // タブの追加
+    this.tab = this.pane.addTab({
+      pages: [{ title: "Music" }, { title: "Paint" }],
+    });
+
+    // イベント設定
+    this.pane.on("change", (ev) => {
       if (!this.player) return;
-      this.player.video && this.player.requestPlay();
-      console.log("Start playing");
+
+      // 曲の停止
+      this.player.video && this.player.requestStop();
+
+      if (typeof ev.value === "string") {
+        // 曲変更
+        this.player.createFromSongUrl(ev.value);
+        this.changeMusicFlg = true;
+        // ローディングの表示
+        const spinner = document.getElementById("loading");
+        spinner?.classList.remove("loaded");
+      }
     });
+
+    // セパレータの追加
+    this.tab.pages[0]?.addSeparator();
+
+    // 曲選択リストの追加
+    this.tab.pages[0]?.addBlade({
+      view: "list",
+      label: "Music Select",
+      options: [
+        {
+          text: "First Note / blues",
+          value: "https://piapro.jp/t/FDb1/20210213190029",
+        },
+        {
+          text: "嘘も本当も君だから / 真島ゆろ",
+          value: "https://piapro.jp/t/YW_d/20210206123357",
+        },
+        {
+          text: "その心に灯る色は / ラテルネ",
+          value: "https://www.youtube.com/watch?v=bMtYf3R0zhY",
+        },
+        {
+          text: "夏をなぞって / シロクマ消しゴム",
+          value: "https://piapro.jp/t/R6EN/20210222075543",
+        },
+        {
+          text: "密かなる交信曲 / 濁茶",
+          value: "https://www.youtube.com/watch?v=Ch4RQPG1Tmo",
+        },
+        {
+          text: "Freedom! / Chiquewa",
+          value: "https://piapro.jp/t/N--x/20210204215604",
+        },
+      ],
+      value: "https://piapro.jp/t/FDb1/20210213190029",
+    });
+
+    // セパレータの追加
+    this.tab.pages[0]?.addSeparator();
+
+    this.mediaFolder = this.tab.pages[0]?.addFolder({
+      title: "Media Controls",
+    });
+    const startBtn = this.mediaFolder?.addButton({
+      title: "Start",
+    });
+    if (startBtn) {
+      startBtn.on("click", () => {
+        if (!this.player) return;
+        this.player.video && this.player.requestPlay();
+      });
+    }
+
+    const pauseBtn = this.mediaFolder?.addButton({
+      title: "Pause",
+    });
+    if (pauseBtn) {
+      pauseBtn.on("click", () => {
+        if (!this.player) return;
+        player.video && player.requestPause();
+      });
+    }
+
+    const stopBtn = this.mediaFolder?.addButton({
+      title: "Stop",
+    });
+    if (stopBtn) {
+      stopBtn.on("click", () => {
+        if (!this.player) return;
+        player.video && player.requestStop();
+      });
+    }
+  }
+
+  /**
+   * 曲変更フラグの取得
+   * @returns {boolean} this.changeMusicFlg
+   */
+  public getMusicChangeFlg(): boolean {
+    return this.changeMusicFlg;
+  }
+
+  /**
+   * 曲変更フラグの設定
+   * @param {boolean} flg 曲変更フラグ
+   */
+  public setMusicChangeFlg(flg: boolean): void {
+    this.changeMusicFlg = flg;
   }
 }
 export default new ControlPanel();

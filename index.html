@@ -4,33 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="dist/bundle.js"></script>
+    <link rel="stylesheet" href="./src/style.css" />
     <title>mm2021</title>
-
-    <style>
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        overflow: hidden;
-      }
-
-      #three {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-
-      .layer-wrap {
-        position: relative;
-      }
-
-      .layer-wrap > canvas {
-        position: absolute;
-      }
-    </style>
   </head>
 
   <body>
+    <div class="layer-wrap">
+      <canvas id="three"></canvas>
+      <canvas id="paint"></canvas>
+    </div>
+
+    <div id="loading">
+      <div class="loader"></div>
+    </div>
+
     <div id="debug" style="display: none">
       <!-- header -->
       <div id="header">
@@ -72,11 +59,6 @@
         </div>
         <!-- container -->
       </div>
-    </div>
-
-    <div class="layer-wrap">
-      <canvas id="three"></canvas>
-      <canvas id="paint"></canvas>
     </div>
   </body>
 </html>
