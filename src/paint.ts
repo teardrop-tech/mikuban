@@ -12,8 +12,10 @@ class Paint {
   private height = 0;
   /** クリック中の判定1:クリック開始 2:クリック中 */
   private clickFlg = 0;
-  /** 線の色(R、G、B、α) */
-  private color = "255, 0, 0, 1";
+  /** 線の色 */
+  private color = "#66DDCC";
+  /** 前回の線の色 */
+  private prevColor = this.color;
   /** 線の太さ */
   private bold = 5;
 
@@ -33,7 +35,7 @@ class Paint {
     if (!this.context) return;
 
     // 線の色の設定
-    this.context.strokeStyle = "rgba(" + this.color + ")";
+    this.context.strokeStyle = this.color;
     // 線の太さの設定
     this.context.lineWidth = this.bold;
     // 描画
@@ -113,6 +115,39 @@ class Paint {
       this.canvas.width = this.width;
       this.canvas.height = this.height;
     }
+  }
+
+  /**
+   * 線の太さを設定
+   * @param {number} bold 線の太さ
+   */
+  public setLineBold(bold: number): void {
+    this.bold = bold;
+  }
+
+  /**
+   * 線の色を設定
+   * @param {string} color 色
+   */
+  public setLineColor(color: string): void {
+    // 前回の色を保持
+    this.prevColor = this.color;
+    this.color = color;
+  }
+
+  /**
+   * 前回設定されていた色に変更
+   */
+  public changePrevColor(): void {
+    this.color = this.prevColor;
+  }
+
+  /**
+   * キャンバスクリア
+   */
+  public clearCanvas(): void {
+    if (!this.context) return;
+    this.context.clearRect(0, 0, this.width, this.height);
   }
 }
 export default new Paint();

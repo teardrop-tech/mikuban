@@ -1,5 +1,6 @@
 import { Player } from "textalive-app-api";
 import { FolderApi, Pane, TabApi } from "tweakpane";
+import Paint from "./paint";
 
 /**
  * コントロールパネル
@@ -42,16 +43,50 @@ class ControlPanel {
     this.pane.on("change", (ev) => {
       if (!this.player) return;
 
-      // 曲の停止
-      this.player.video && this.player.requestStop();
+      // 曲の音量変更
+      if (ev.presetKey === "Volume") {
+        if (typeof ev.value === "number") {
+          this.player.volume = ev.value;
+        }
+        return;
+      }
 
+      // 線の太さを設定
+      if (ev.presetKey === "LineWeight") {
+        if (typeof ev.value === "number") {
+          Paint.setLineBold(ev.value);
+        }
+        return;
+      }
+
+      // 線の色を変更
+      if (ev.presetKey === "Color") {
+        if (typeof ev.value === "string") {
+          Paint.setLineColor(ev.value);
+        }
+        return;
+      }
+
+      // 消しゴムモードに変更
+      if (ev.presetKey === "EraserMode") {
+        if (ev.value) {
+          Paint.setLineColor("#3d5347");
+        } else {
+          Paint.changePrevColor();
+        }
+        return;
+      }
+
+      // 曲変更
       if (typeof ev.value === "string") {
-        // 曲変更
+        // 曲の停止
+        this.player.video && this.player.requestStop();
         this.player.createFromSongUrl(ev.value);
         this.changeMusicFlg = true;
         // ローディングの表示
         const spinner = document.getElementById("loading");
         spinner?.classList.remove("loaded");
+        return;
       }
     });
 
@@ -124,6 +159,43 @@ class ControlPanel {
       stopBtn.on("click", () => {
         if (!this.player) return;
         player.video && player.requestStop();
+      });
+    }
+
+    const VOLUME = {
+      Volume: this.player.volume,
+    };
+    this.mediaFolder?.addInput(VOLUME, "Volume", {
+      min: 0,
+      max: 100,
+    });
+
+    /** ペイント関連 */
+    const LINE_WEIGHT = {
+      LineWeight: 5,
+    };
+    this.tab.pages[1]?.addInput(LINE_WEIGHT, "LineWeight", {
+      min: 0,
+      max: 100,
+    });
+
+    const COLOR = {
+      Color: "#8df",
+    };
+    this.tab.pages[1]?.addInput(COLOR, "Color");
+
+    const ERASER = {
+      EraserMode: false,
+    };
+    this.tab.pages[1]?.addInput(ERASER, "EraserMode");
+
+    const clearBtn = this.tab.pages[1]?.addButton({
+      title: "Clear Black Board",
+    });
+    if (clearBtn) {
+      clearBtn.on("click", () => {
+        if (!this.player) return;
+        Paint.clearCanvas();
       });
     }
   }
