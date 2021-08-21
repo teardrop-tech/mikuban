@@ -148,7 +148,7 @@ const handlePlayer = ({
         elements.position.value = String((position / songLengthMs) * 100);
       }
     },
-  handleOnMediaSeek: () => (position: number) =>
+  handleOnMediaSeek: (position: number) =>
     console.log(`🏃‍♂️ Change seek to ${position} ms`),
   handleOnPlay: () => console.log("▶️ Start playing"),
   handleOnPause:
