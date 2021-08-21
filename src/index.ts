@@ -1,8 +1,9 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
-
+import Paint from "./paint";
+import ControlPanel from "./controlPanel";
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 type Nullable<T> = T | null;
 
@@ -15,7 +16,8 @@ const handlePlayer = ({
 }) => ({
   handleOnAppReady: (app: IPlayerApp) => {
     if (!app.songUrl) {
-      player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
+      // デフォルト選択曲
+      player.createFromSongUrl("https://piapro.jp/t/FDb1/20210213190029");
     }
   },
   handleOnVideoReady:
@@ -60,11 +62,24 @@ const handlePlayer = ({
       phrase: Nullable<Element>;
     }) =>
     () => {
+      // ローディング表示の解除
+      const spinner: HTMLElement | null = document.getElementById("loading");
+      if (spinner) {
+        spinner.classList.add("loaded");
+      }
+
+      // コントロールパネルから曲変更時は自動再生
+      if (ControlPanel.getMusicChangeFlg()) {
+        player.video && player.requestPlay();
+        ControlPanel.setMusicChangeFlg(false);
+      }
+
       if (player.app.managed || !elements.control) {
         // Hide controllers in 'TextAlive App Debugger'
         return;
       }
-      elements.control.style.display = "block";
+
+      elements.control.style.display = "none";
       elements.control.childNodes.forEach((button) => {
         if (button instanceof HTMLInputElement) {
           const songLengthMs = player.data.song.length * 1000;
@@ -211,21 +226,15 @@ const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
     const camera = new THREE.PerspectiveCamera(45, aspect);
     camera.position.set(0, 0, 500);
     camera.lookAt(scene.position);
-    const controls = new OrbitControls(camera, canvas);
-    controls.enableRotate = false;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.2;
+    // const controls = new OrbitControls(camera, canvas);
+    // controls.enableRotate = false;
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.2;
     if (option?.debug) {
       scene.add(new THREE.AxesHelper(1000));
     }
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
-    const box = new THREE.Mesh(
-      new THREE.BoxGeometry(40, 40, 40),
-      new THREE.MeshNormalMaterial()
-    );
-    box.translateY(100);
-    scene.add(box);
     const loader = new TTFLoader();
     loader.load("./public/TanukiMagic.ttf", (json: unknown) => {
       const font = new THREE.FontLoader().parse(json);
@@ -247,12 +256,12 @@ const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
         scene,
         font,
         play: tick,
-        updateText: (text = "-") => {
+        updateText: (text = "") => {
           mesh && scene.remove(mesh);
           mesh = new THREE.Mesh(
             new THREE.TextGeometry(text, {
               font,
-              size: 128,
+              size: 24,
               height: 0,
               bevelEnabled: true,
               bevelThickness: 0,
@@ -271,8 +280,7 @@ const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
       });
     });
     const tick = () => {
-      controls.update();
-      box.rotation.y += 0.01;
+      // controls.update();
       renderer.render(scene, camera);
       requestAnimationFrame(tick);
     };
@@ -350,6 +358,12 @@ window.onload = async () => {
   });
 
   three.play();
+
+  // ペイント初期化
+  Paint.init();
+
+  // コントロールパネルの表示
+  ControlPanel.init(player);
 };
 
 /**
@@ -359,5 +373,8 @@ window.onload = async () => {
 const resizeDisplay = (three: ThreeWrapper) => () => {
   const width: number = window.innerWidth;
   const height: number = window.innerHeight;
+  // three canvasのリサイズ
   three.resizeDisplay(width, height);
+  // paint canvasのリサイズ
+  Paint.setCanvasSize(width, height);
 };
