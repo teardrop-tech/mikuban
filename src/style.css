@@ -19,7 +19,12 @@ body {
   position: absolute;
 }
 
-/* ローディング表示 */
+/** Tweakpane */
+.tp-dfwv {
+  left: 8px;
+}
+
+/** ローディング表示 */
 #loading {
   display: flex;
   justify-content: center;

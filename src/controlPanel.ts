@@ -175,12 +175,12 @@ class ControlPanel {
       LineWeight: 5,
     };
     this.tab.pages[1]?.addInput(LINE_WEIGHT, "LineWeight", {
-      min: 0,
+      min: 0.5,
       max: 100,
     });
 
     const COLOR = {
-      Color: "#8df",
+      Color: "#66DDCC",
     };
     this.tab.pages[1]?.addInput(COLOR, "Color");
 
