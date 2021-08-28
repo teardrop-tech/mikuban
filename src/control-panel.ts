@@ -100,13 +100,17 @@ class ControlPanel {
       });
 
     mediaFolder
-      ?.addBlade({
-        view: "slider",
-        label: "Volume",
-        min: 0,
-        max: 100,
-        value: player.volume,
-      })
+      ?.addInput(
+        {
+          Volume: player.volume,
+        },
+        "Volume",
+        {
+          step: 1,
+          min: 0,
+          max: 100,
+        }
+      )
       .on("change", (ev) => {
         player.volume = Math.round(ev.value);
       });
