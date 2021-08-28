@@ -75,13 +75,13 @@ window.onload = async () => {
     onStop,
   });
 
-  three.play();
-
   // ペイント初期化
   Paint.init();
 
   // コントロールパネルの表示
   ControlPanel.init(player);
+
+  three.play();
 };
 
 /**

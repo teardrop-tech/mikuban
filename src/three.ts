@@ -35,13 +35,12 @@ export interface ThreeWrapper {
 export const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
   new Promise((resolve) => {
     const canvas = document.querySelector("#three") as HTMLCanvasElement;
-    const renderer = new THREE.WebGLRenderer({ canvas });
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
 
     const width: number = window.innerWidth;
     const height: number = window.innerHeight;
     const aspect: number = width / height;
 
-    renderer.setClearColor(0x3d5347, 1);
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
 

@@ -172,7 +172,7 @@ class ControlPanel {
 
     /** ペイント関連 */
     const LINE_WEIGHT = {
-      LineWeight: 5,
+      LineWeight: Paint.getLineBold(),
     };
     this.tab.pages[1]?.addInput(LINE_WEIGHT, "LineWeight", {
       min: 0.5,
@@ -180,7 +180,7 @@ class ControlPanel {
     });
 
     const COLOR = {
-      Color: "#66DDCC",
+      Color: Paint.getLineColor(),
     };
     this.tab.pages[1]?.addInput(COLOR, "Color");
 
