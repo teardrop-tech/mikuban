@@ -17,7 +17,7 @@ class Paint {
   /** 前回の線の色 */
   private prevColor = this.color;
   /** 線の太さ */
-  private bold = 5;
+  private bold = 10;
 
   /**
    * コンストラクタ
@@ -125,6 +125,8 @@ class Paint {
     this.bold = bold;
   }
 
+  public getLineBold = () => this.bold;
+
   /**
    * 線の色を設定
    * @param {string} color 色
@@ -134,6 +136,8 @@ class Paint {
     this.prevColor = this.color;
     this.color = color;
   }
+
+  public getLineColor = () => this.color;
 
   /**
    * 前回設定されていた色に変更

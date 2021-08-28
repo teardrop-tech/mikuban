@@ -67,11 +67,8 @@ export const handlePlayer = ({
         spinner.classList.add("loaded");
       }
 
-      // コントロールパネルから曲変更時は自動再生
-      if (ControlPanel.getMusicChangeFlg()) {
-        player.video && player.requestPlay();
-        ControlPanel.setMusicChangeFlg(false);
-      }
+      player.video && player.requestPlay();
+      ControlPanel.setMusicChangeFlg(false);
 
       if (player.app.managed || !elements.control) {
         // Hide controllers in 'TextAlive App Debugger'
@@ -163,8 +160,9 @@ export const handlePlayer = ({
         elements.position.value = String((position / songLengthMs) * 100);
       }
     },
-  handleOnMediaSeek: (position: number) =>
-    console.log(`🏃‍♂️ Change seek to ${position} ms`),
+  handleOnMediaSeek: (position: number) => {
+    /** */
+  },
   handleOnPlay: () => console.log("▶️ Start playing"),
   handleOnPause:
     (elements: { word: Nullable<Element>; phrase: Nullable<Element> }) =>
