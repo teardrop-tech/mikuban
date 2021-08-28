@@ -22,7 +22,9 @@ module.exports = {
   },
   plugins: [
     new ESLintPlugin(),
-    new Dotenv(),
+    new Dotenv({
+      systemvars: true,
+    }),
     new CopyPlugin({
       patterns: [{ from: "public" }],
     }),
