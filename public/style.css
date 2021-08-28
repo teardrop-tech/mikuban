@@ -159,3 +159,21 @@ body {
     transform: rotate(360deg);
   }
 }
+
+#debug {
+  display: none;
+  position: fixed;
+  width: 200px;
+  top: 4px;
+  right: 4px;
+  user-select: none;
+  pointer-events: none;
+  color: white;
+  font-size: 0.1rem;
+  font-family: monospace;
+  background-color: var(--color-loading-background);
+}
+
+#debug > .header {
+  font-weight: bold;
+}

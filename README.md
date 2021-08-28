@@ -18,6 +18,12 @@ npm run start
 
 Open <http://localhost:8080>
 
+#### With debug mode
+
+```shell
+npm run start:debug
+```
+
 #### With TextAlive App Debugger
 
 ```shell

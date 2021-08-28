@@ -1,8 +1,77 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
 
-import { Nullable } from "./utils";
 import { ThreeWrapper } from "./three";
 import ControlPanel from "./controlPanel";
+import { safetyGetElementById } from "./utils";
+
+export const initializePlayer = ({
+  three,
+  token,
+}: {
+  three: ThreeWrapper;
+  token: string;
+}) => {
+  const player = new Player({
+    app: {
+      token,
+    },
+    valenceArousalEnabled: true,
+    vocalAmplitudeEnabled: true,
+  });
+
+  const {
+    handleOnAppReady,
+    handleOnVideoReady,
+    handleOnTimerReady,
+    handleOnTimeUpdate,
+    handleOnPlay,
+    handleOnPause,
+    handleOnStop,
+  } = handlePlayer({
+    player,
+    three,
+  });
+  const onAppReady = handleOnAppReady();
+  const onVideoReady = handleOnVideoReady({
+    song: safetyGetElementById("song"),
+    artist: safetyGetElementById("artist"),
+    phrase: safetyGetElementById("phrase"),
+    word: safetyGetElementById("word"),
+  });
+  const onTimerReady = handleOnTimerReady({
+    spinner: safetyGetElementById("loading"),
+  });
+  const onTimeUpdate = handleOnTimeUpdate({
+    beats: safetyGetElementById("beats"),
+    chords: safetyGetElementById("chords"),
+    va: {
+      valence: safetyGetElementById("va-valence"),
+      arousal: safetyGetElementById("va-arousal"),
+      result: safetyGetElementById("va-result"),
+    },
+    amplitude: safetyGetElementById("amplitude"),
+  });
+  const onPlay = handleOnPlay();
+  const onPause = handleOnPause({
+    phrase: safetyGetElementById("phrase"),
+    word: safetyGetElementById("word"),
+  });
+  const onStop = handleOnStop({
+    phrase: safetyGetElementById("phrase"),
+    word: safetyGetElementById("word"),
+  });
+  player.addListener({
+    onAppReady,
+    onVideoReady,
+    onTimerReady,
+    onTimeUpdate,
+    onPlay,
+    onPause,
+    onStop,
+  });
+
+  return player;
+};
 
 export const handlePlayer = ({
   player,
@@ -11,7 +80,7 @@ export const handlePlayer = ({
   player: Player;
   three: ThreeWrapper;
 }) => ({
-  handleOnAppReady: (app: IPlayerApp) => {
+  handleOnAppReady: () => (app: IPlayerApp) => {
     if (!app.songUrl) {
       // デフォルト選択曲
       player.createFromSongUrl("https://piapro.jp/t/FDb1/20210213190029");
@@ -19,170 +88,79 @@ export const handlePlayer = ({
   },
   handleOnVideoReady:
     (elements: {
-      artist: Nullable<Element>;
-      song: Nullable<Element>;
-      word: Nullable<Element>;
-      phrase: Nullable<Element>;
+      song: Element;
+      artist: Element;
+      phrase: Element;
+      word: Element;
     }) =>
     () => {
       const { song } = player.data;
-      if (elements.artist) {
-        elements.artist.textContent = song.artist.name;
-      }
-      if (elements.song) {
-        elements.song.textContent = song.name;
-      }
-      for (let word = player.video.firstWord; word; word = word.next) {
-        word.animate = (now, u) => {
-          if (u.contains(now) && elements.word) {
-            elements.word.textContent = u.text;
-          }
-        };
-      }
+      elements.artist.textContent = song.artist.name;
+      elements.song.textContent = song.name;
+
       three.resetTextMesh();
-      for (
-        let phrase = player.video.firstPhrase;
-        phrase;
-        phrase = phrase.next
-      ) {
+      const { firstPhrase, firstWord } = player.video;
+
+      for (let phrase = firstPhrase; phrase; phrase = phrase.next) {
         three.addTextMesh(phrase.text);
         phrase.animate = (now, u) => {
-          if (u.contains(now) && elements.phrase) {
+          if (u.contains(now)) {
             elements.phrase.textContent = u.text;
             three.showTextMeshToScene(u.text);
           }
         };
       }
-    },
-  handleOnTimerReady:
-    (elements: {
-      control: Nullable<HTMLElement>;
-      word: Nullable<Element>;
-      phrase: Nullable<Element>;
-    }) =>
-    () => {
-      // ローディング表示の解除
-      const spinner: HTMLElement | null = document.getElementById("loading");
-      if (spinner) {
-        spinner.classList.add("loaded");
-      }
 
+      for (let word = firstWord; word; word = word.next) {
+        word.animate = (now, u) => {
+          if (u.contains(now)) {
+            elements.word.textContent = u.text;
+          }
+        };
+      }
+    },
+  handleOnTimerReady: (elements: { spinner: Element }) => () => {
+    // ローディング表示の解除
+    elements.spinner.classList.add("loaded");
+    // コントロールパネルから曲変更時は自動再生
+    // https://developer.chrome.com/blog/autoplay/
+    if (ControlPanel.getMusicChangeFlg()) {
       player.video && player.requestPlay();
       ControlPanel.setMusicChangeFlg(false);
-
-      if (player.app.managed || !elements.control) {
-        // Hide controllers in 'TextAlive App Debugger'
-        return;
-      }
-
-      elements.control.style.display = "none";
-      elements.control.childNodes.forEach((button) => {
-        if (button instanceof HTMLInputElement) {
-          const songLengthMs = player.data.song.length * 1000;
-          button.oninput = (ev) => {
-            ev.preventDefault();
-            if (elements.word) {
-              elements.word.textContent = "-";
-            }
-            if (elements.phrase) {
-              elements.phrase.textContent = "-";
-              three.removeTextMeshFromScene();
-            }
-            const progress = parseFloat(button.value) / 100;
-            player.video && player.requestMediaSeek(progress * songLengthMs);
-          };
-        }
-        if (!(button instanceof HTMLButtonElement)) {
-          return;
-        }
-        button.disabled = false;
-        switch (button.id) {
-          case "play":
-            button.onclick = (ev) => {
-              ev.preventDefault();
-              player.video && player.requestPlay();
-            };
-            break;
-          case "jump":
-            button.disabled = !player.video.firstChar;
-            button.onclick = (ev) => {
-              ev.preventDefault();
-              player.video &&
-                player.requestMediaSeek(player.video.firstChar.startTime);
-            };
-            break;
-          case "pause":
-            button.onclick = (ev) => {
-              ev.preventDefault();
-              player.video && player.requestPause();
-            };
-            break;
-          case "stop":
-            button.onclick = (ev) => {
-              ev.preventDefault();
-              player.video && player.requestStop();
-            };
-            break;
-        }
-      });
-    },
+    }
+  },
   handleOnTimeUpdate:
     (elements: {
-      beats: Nullable<Element>;
-      chords: Nullable<Element>;
-      va: Nullable<Element>;
-      amplitude: Nullable<Element>;
+      beats: Element;
+      chords: Element;
+      va: {
+        valence: Element;
+        arousal: Element;
+        result: Element;
+      };
+      amplitude: Element;
     }) =>
     (position: number) => {
       const beat = player.findBeat(position);
-      if (beat && elements.beats) {
-        const progress = Math.ceil(Ease.circIn(beat.progress(position)) * 100);
-        elements.beats.textContent = `${beat.position} / ${beat.length} [${progress}%]`;
-      }
+      const progress = Math.ceil(Ease.circIn(beat.progress(position)) * 100);
+      elements.beats.textContent = `${beat.position} / ${beat.length} [${progress}%]`;
       const chord = player.findChord(position);
-      if (chord && elements.chords) {
-        elements.chords.textContent = chord.name;
-      }
+      elements.chords.textContent = chord.name;
       const va = player.getValenceArousal(position);
-      if (va && elements.va) {
-        elements.va.textContent = `${va.v} / ${va.a}`;
-      }
+      elements.va.valence.textContent = va.v.toString();
+      elements.va.arousal.textContent = va.v.toString();
+      elements.va.result.textContent = (va.v / va.a).toString();
       const amplitude = player.getVocalAmplitude(position);
-      if (amplitude && elements.amplitude) {
-        elements.amplitude.textContent = amplitude.toString();
-      }
+      elements.amplitude.textContent = amplitude.toString();
     },
-  handleOnThrottledTimeUpdate:
-    (elements: { position: Nullable<HTMLInputElement> }) =>
-    (position: number) => {
-      if (elements.position) {
-        const songLengthMs = player.data.song.length * 1000;
-        elements.position.value = String((position / songLengthMs) * 100);
-      }
-    },
-  handleOnMediaSeek: (position: number) => {
-    /** */
+  handleOnPlay: () => () => console.log("▶️ Start playing"),
+  handleOnPause: (elements: { phrase: Element; word: Element }) => () => {
+    elements.phrase.textContent = "-";
+    elements.word.textContent = "-";
   },
-  handleOnPlay: () => console.log("▶️ Start playing"),
-  handleOnPause:
-    (elements: { word: Nullable<Element>; phrase: Nullable<Element> }) =>
-    () => {
-      if (elements.word) {
-        elements.word.textContent = "-";
-      }
-      if (elements.phrase) {
-        elements.phrase.textContent = "-";
-      }
-    },
-  handleOnStop:
-    (elements: { word: Nullable<Element>; phrase: Nullable<Element> }) =>
-    () => {
-      if (elements.word) {
-        elements.word.textContent = "-";
-      }
-      if (elements.phrase) {
-        elements.phrase.textContent = "-";
-        three.removeTextMeshFromScene();
-      }
-    },
+  handleOnStop: (elements: { phrase: Element; word: Element }) => () => {
+    elements.phrase.textContent = "-";
+    elements.word.textContent = "-";
+    three.removeTextMeshFromScene();
+  },
 });
