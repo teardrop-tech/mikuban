@@ -52,7 +52,7 @@ const resizeDisplay = (three: ThreeWrapper) => () => {
  * 黒板消しボタンの初期化
  */
 const initEraserButton = () => {
-  const button = document.getElementById("eraser");
+  const button = safetyGetElementById("eraser");
   if (!(button instanceof HTMLButtonElement)) {
     return;
   }
@@ -69,7 +69,7 @@ const initEraserButton = () => {
  * チョークボタンの初期化
  */
 const initChalkButtons = () => {
-  const element = document.getElementById("chalks");
+  const element = safetyGetElementById("chalks");
   element?.childNodes.forEach((button) => {
     if (!(button instanceof HTMLButtonElement)) {
       return;

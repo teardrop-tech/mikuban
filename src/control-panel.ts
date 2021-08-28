@@ -68,11 +68,7 @@ class ControlPanel {
     // セパレータの追加
     tab.pages[0]?.addSeparator();
 
-    const mediaFolder = tab.pages[0]?.addFolder({
-      title: "Media Controls",
-    });
-
-    mediaFolder
+    tab.pages[0]
       ?.addBlade({
         view: "buttongrid",
         size: [4, 1],
@@ -99,7 +95,7 @@ class ControlPanel {
         }
       });
 
-    mediaFolder
+    tab.pages[0]
       ?.addInput(
         {
           Volume: player.volume,
