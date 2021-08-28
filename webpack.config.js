@@ -1,6 +1,8 @@
 const path = require("path");
 const ESLintPlugin = require("eslint-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
+const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   mode: "development",
@@ -8,7 +10,6 @@ module.exports = {
   output: {
     filename: "bundle.js",
     path: path.join(__dirname, "dist"),
-    publicPath: "/dist/",
   },
   module: {
     rules: [
@@ -19,7 +20,16 @@ module.exports = {
       },
     ],
   },
-  plugins: [new ESLintPlugin(), new Dotenv()],
+  plugins: [
+    new ESLintPlugin(),
+    new Dotenv(),
+    new CopyPlugin({
+      patterns: [{ from: "public" }],
+    }),
+    new HtmlWebpackPlugin({
+      template: "index.html",
+    }),
+  ],
   resolve: {
     extensions: [".ts", ".js"],
   },

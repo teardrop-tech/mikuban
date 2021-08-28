@@ -54,7 +54,7 @@ export const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
-    const texture = new THREE.TextureLoader().load("public/texture.png");
+    const texture = new THREE.TextureLoader().load("texture.png");
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(0.01, 0.01);
     const material = [
@@ -71,7 +71,7 @@ export const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
     const state = initState;
 
     const loader = new TTFLoader();
-    loader.load("./public/TanukiMagic.ttf", (json: unknown) => {
+    loader.load("TanukiMagic.ttf", (json: unknown) => {
       const font = new THREE.FontLoader().parse(json);
       const play = () => {
         renderer.render(scene, camera);
