@@ -11,6 +11,14 @@ export const theme = {
   },
 } as const;
 
+export const paintSettings = {
+  lineBold: 10,
+  drawOffset: {
+    x: 25,
+    y: 25,
+  },
+} as const;
+
 export const musicList = [
   {
     text: "First Note / blues",

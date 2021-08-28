@@ -2,11 +2,7 @@
  * お絵かき機能
  */
 
-import { theme } from "./definition";
-
-/** 描画可能領域 */
-const DRAW_OFFSET_X = 25;
-const DRAW_OFFSET_Y = 25;
+import { theme, paintSettings } from "./definition";
 
 class Paint {
   /** HTML canvas */
@@ -24,7 +20,7 @@ class Paint {
   /** 前回の線の色 */
   private prevColor: string;
   /** 線の太さ */
-  private bold = 10;
+  private bold: number;
 
   /**
    * コンストラクタ
@@ -32,6 +28,7 @@ class Paint {
   constructor() {
     this.color = theme.color.miku;
     this.prevColor = this.color;
+    this.bold = paintSettings.lineBold;
   }
 
   /**
@@ -41,8 +38,14 @@ class Paint {
    * @returns true:描画可能 false:描画不可能
    */
   private canDraw(x: number, y: number): boolean {
-    if (x >= DRAW_OFFSET_X && x < this.width - DRAW_OFFSET_X) {
-      if (y >= DRAW_OFFSET_Y && y < this.height - DRAW_OFFSET_Y) {
+    if (
+      x >= paintSettings.drawOffset.x &&
+      x < this.width - paintSettings.drawOffset.x
+    ) {
+      if (
+        y >= paintSettings.drawOffset.y &&
+        y < this.height - paintSettings.drawOffset.y
+      ) {
         return true;
       }
     }
