@@ -2,6 +2,8 @@
  * お絵かき機能
  */
 
+import { theme } from "./definition";
+
 /** 描画可能領域 */
 const DRAW_OFFSET_X = 25;
 const DRAW_OFFSET_Y = 25;
@@ -18,9 +20,9 @@ class Paint {
   /** クリック中の判定1:クリック開始 2:クリック中 */
   private clickFlg = 0;
   /** 線の色 */
-  private color = "#54c5a3";
+  private color: string;
   /** 前回の線の色 */
-  private prevColor = this.color;
+  private prevColor: string;
   /** 線の太さ */
   private bold = 10;
 
@@ -28,7 +30,8 @@ class Paint {
    * コンストラクタ
    */
   constructor() {
-    console.log("Paint Constructor");
+    this.color = theme.color.miku;
+    this.prevColor = this.color;
   }
 
   /**

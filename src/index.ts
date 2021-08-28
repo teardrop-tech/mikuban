@@ -1,6 +1,7 @@
 import { setupThree, ThreeWrapper } from "./three";
 import { initializePlayer } from "./textalive";
 import { safetyGetElementById } from "./utils";
+import { theme } from "./definition";
 import Paint from "./paint";
 import ControlPanel from "./control-panel";
 
@@ -80,43 +81,43 @@ const initChalkButtons = () => {
       case "chalk-white":
         button.onclick = (ev) => {
           ev.preventDefault();
-          ControlPanel.changeColorPicker("#ffffff");
+          ControlPanel.changeColorPicker(theme.color.white);
         };
         break;
       case "chalk-miku":
         button.onclick = (ev) => {
           ev.preventDefault();
-          ControlPanel.changeColorPicker("#54c5a3");
+          ControlPanel.changeColorPicker(theme.color.miku);
         };
         break;
       case "chalk-rin":
         button.onclick = (ev) => {
           ev.preventDefault();
-          ControlPanel.changeColorPicker("#eeaa00");
+          ControlPanel.changeColorPicker(theme.color.rin);
         };
         break;
       case "chalk-ren":
         button.onclick = (ev) => {
           ev.preventDefault();
-          ControlPanel.changeColorPicker("#ffee77");
+          ControlPanel.changeColorPicker(theme.color.ren);
         };
         break;
       case "chalk-luka":
         button.onclick = (ev) => {
           ev.preventDefault();
-          ControlPanel.changeColorPicker("#c5548d");
+          ControlPanel.changeColorPicker(theme.color.luka);
         };
         break;
       case "chalk-kaito":
         button.onclick = (ev) => {
           ev.preventDefault();
-          ControlPanel.changeColorPicker("#545cc5");
+          ControlPanel.changeColorPicker(theme.color.kaito);
         };
         break;
       case "chalk-meiko":
         button.onclick = (ev) => {
           ev.preventDefault();
-          ControlPanel.changeColorPicker("#c55454");
+          ControlPanel.changeColorPicker(theme.color.meiko);
         };
         break;
     }

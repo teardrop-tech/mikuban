@@ -1,19 +1,17 @@
 import { Player } from "textalive-app-api";
-import { FolderApi, Pane, TabApi } from "tweakpane";
+import { Pane } from "tweakpane";
+import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
+
+import { safetyGetElementById } from "./utils";
 import Paint from "./paint";
+import { theme, musicList } from "./definition";
 
 /**
  * コントロールパネル
  */
 class ControlPanel {
-  /** TextAlive Player */
-  private player: Player | null | undefined;
-  /** コントロールパネル */
-  private pane: Pane | null | undefined;
-  /** タブ */
-  private tab: TabApi | null | undefined;
-  /** メディアコントロールのフォルダー */
-  private mediaFolder: FolderApi | null | undefined;
+  /** コントロールパネル本体 */
+  private pane: Pane;
   /** 曲変更フラグ */
   private changeMusicFlg = false;
   /** カラーピッカーのパラメータ */
@@ -25,8 +23,15 @@ class ControlPanel {
     EraserMode: false,
   };
 
+  /**
+   * コンストラクタ
+   */
   constructor() {
-    console.log("ControlPanel constructor");
+    // コントロールパネルの生成
+    this.pane = new Pane({
+      title: "Control Panel",
+      expanded: false,
+    });
   }
 
   /**
@@ -34,179 +39,114 @@ class ControlPanel {
    * @param {Player} player TextAlive Player
    */
   public init(player: Player): void {
-    this.player = player;
-
-    // コントロールパネルの生成
-    this.pane = new Pane({
-      title: "Control Panel",
-      expanded: false,
-    });
+    this.pane.registerPlugin(EssentialsPlugin);
 
     // タブの追加
-    this.tab = this.pane.addTab({
+    const tab = this.pane.addTab({
       pages: [{ title: "Music" }, { title: "Paint" }],
     });
 
-    // イベント設定
-    this.pane.on("change", (ev) => {
-      if (!this.player) return;
-
-      // 曲の音量変更
-      if (ev.presetKey === "Volume") {
-        if (typeof ev.value === "number") {
-          this.player.volume = ev.value;
-        }
-        return;
-      }
-
-      // 線の太さを設定
-      if (ev.presetKey === "LineWeight") {
-        if (typeof ev.value === "number") {
-          Paint.setLineBold(ev.value);
-        }
-        return;
-      }
-
-      // 線の色を変更
-      if (ev.presetKey === "Color") {
-        if (typeof ev.value === "string") {
-          if (this.ERASER.EraserMode) {
-            // 消しゴムモードの場合は前回の色に設定
-            Paint.setPrevLineColor(ev.value);
-          } else {
-            Paint.setLineColor(ev.value);
-          }
-        }
-        return;
-      }
-
-      // 消しゴムモードに変更
-      if (ev.presetKey === "EraserMode") {
-        if (ev.value) {
-          Paint.setLineColor("#3d5347");
-        } else {
-          Paint.changePrevColor();
-        }
-        return;
-      }
-
-      // 曲変更
-      if (typeof ev.value === "string") {
-        // 曲の停止
-        this.player.video && this.player.requestStop();
-        this.player.createFromSongUrl(ev.value);
-        this.changeMusicFlg = true;
-        // ローディングの表示
-        const spinner = document.getElementById("loading");
-        spinner?.classList.remove("loaded");
-        return;
-      }
-    });
-
     // セパレータの追加
-    this.tab.pages[0]?.addSeparator();
+    tab.pages[0]?.addSeparator();
 
     // 曲選択リストの追加
-    this.tab.pages[0]?.addBlade({
-      view: "list",
-      label: "Music Select",
-      options: [
-        {
-          text: "First Note / blues",
-          value: "https://piapro.jp/t/FDb1/20210213190029",
-        },
-        {
-          text: "嘘も本当も君だから / 真島ゆろ",
-          value: "https://piapro.jp/t/YW_d/20210206123357",
-        },
-        {
-          text: "その心に灯る色は / ラテルネ",
-          value: "https://www.youtube.com/watch?v=bMtYf3R0zhY",
-        },
-        {
-          text: "夏をなぞって / シロクマ消しゴム",
-          value: "https://piapro.jp/t/R6EN/20210222075543",
-        },
-        {
-          text: "密かなる交信曲 / 濁茶",
-          value: "https://www.youtube.com/watch?v=Ch4RQPG1Tmo",
-        },
-        {
-          text: "Freedom! / Chiquewa",
-          value: "https://piapro.jp/t/N--x/20210204215604",
-        },
-      ],
-      value: "https://piapro.jp/t/FDb1/20210213190029",
-    });
+    tab.pages[0]
+      ?.addBlade({
+        view: "list",
+        options: musicList,
+        value: musicList[0]?.value,
+      })
+      .on("change", (ev) => {
+        // 曲の停止
+        player.requestStop();
+        player.createFromSongUrl(ev.value);
+        this.changeMusicFlg = true;
+        // ローディングの表示
+        safetyGetElementById("loading").classList.remove("loaded");
+      });
 
     // セパレータの追加
-    this.tab.pages[0]?.addSeparator();
+    tab.pages[0]?.addSeparator();
 
-    this.mediaFolder = this.tab.pages[0]?.addFolder({
+    const mediaFolder = tab.pages[0]?.addFolder({
       title: "Media Controls",
     });
-    const startBtn = this.mediaFolder?.addButton({
-      title: "Start",
-    });
-    if (startBtn) {
-      startBtn.on("click", () => {
-        if (!this.player) return;
-        this.player.video && this.player.requestPlay();
-      });
-    }
 
-    const pauseBtn = this.mediaFolder?.addButton({
-      title: "Pause",
-    });
-    if (pauseBtn) {
-      pauseBtn.on("click", () => {
-        if (!this.player) return;
-        player.video && player.requestPause();
+    mediaFolder
+      ?.addBlade({
+        view: "buttongrid",
+        size: [4, 1],
+        cells: (x: number, y: number) => ({
+          title: [["Play", "Pause", "Stop", "Jump"]][y]?.[x],
+        }),
+      })
+      .on("click", (ev) => {
+        switch (ev.cell.title) {
+          case "Play":
+            player.requestPlay();
+            break;
+          case "Pause":
+            player.requestPause();
+            break;
+          case "Stop":
+            player.requestStop();
+            break;
+          case "Jump":
+            player.requestMediaSeek(player.video.firstChar.startTime);
+            break;
+          default:
+            throw new Error(`Unknown event type: ${ev.cell.title}`);
+        }
       });
-    }
 
-    const stopBtn = this.mediaFolder?.addButton({
-      title: "Stop",
-    });
-    if (stopBtn) {
-      stopBtn.on("click", () => {
-        if (!this.player) return;
-        player.video && player.requestStop();
+    mediaFolder
+      ?.addBlade({
+        view: "slider",
+        label: "Volume",
+        min: 0,
+        max: 100,
+        value: player.volume,
+      })
+      .on("change", (ev) => {
+        player.volume = Math.round(ev.value);
       });
-    }
-
-    const VOLUME = {
-      Volume: this.player.volume,
-    };
-    this.mediaFolder?.addInput(VOLUME, "Volume", {
-      min: 0,
-      max: 100,
-    });
 
     /** ペイント関連 */
-    const LINE_WEIGHT = {
-      LineWeight: Paint.getLineBold(),
-    };
-    this.tab.pages[1]?.addInput(LINE_WEIGHT, "LineWeight", {
-      min: 0.5,
-      max: 100,
+    tab.pages[1]
+      ?.addBlade({
+        view: "slider",
+        label: "Line Weight",
+        min: 0.5,
+        max: 100,
+        value: Paint.getLineBold(),
+      })
+      .on("change", (ev) => {
+        Paint.setLineBold(ev.value);
+      });
+
+    tab.pages[1]?.addInput(this.COLOR, "Color").on("change", (ev) => {
+      if (this.ERASER.EraserMode) {
+        Paint.setPrevLineColor(ev.value);
+      } else {
+        Paint.setLineColor(ev.value);
+      }
     });
 
-    // カラーピッカー
-    this.tab.pages[1]?.addInput(this.COLOR, "Color");
-
-    // 消しゴムモード
-    this.tab.pages[1]?.addInput(this.ERASER, "EraserMode");
-
-    const clearBtn = this.tab.pages[1]?.addButton({
-      title: "Clear Black Board",
+    tab.pages[1]?.addInput(this.ERASER, "EraserMode").on("change", (ev) => {
+      if (ev.value) {
+        Paint.setLineColor(theme.color.blackboard);
+      } else {
+        Paint.changePrevColor();
+      }
     });
-    if (clearBtn) {
-      clearBtn.on("click", () => {
-        if (!this.player) return;
+
+    tab.pages[1]
+      ?.addButton({
+        title: "Clear Black Board",
+      })
+      .on("click", () => {
         Paint.clearCanvas();
       });
-    }
   }
 
   /**
