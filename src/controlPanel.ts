@@ -20,6 +20,10 @@ class ControlPanel {
   private COLOR = {
     Color: Paint.getLineColor(),
   };
+  /** 消しゴムモードのパラメータ */
+  private ERASER = {
+    EraserMode: false,
+  };
 
   constructor() {
     console.log("ControlPanel constructor");
@@ -66,7 +70,12 @@ class ControlPanel {
       // 線の色を変更
       if (ev.presetKey === "Color") {
         if (typeof ev.value === "string") {
-          Paint.setLineColor(ev.value);
+          if (this.ERASER.EraserMode) {
+            // 消しゴムモードの場合は前回の色に設定
+            Paint.setPrevLineColor(ev.value);
+          } else {
+            Paint.setLineColor(ev.value);
+          }
         }
         return;
       }
@@ -183,12 +192,11 @@ class ControlPanel {
       max: 100,
     });
 
+    // カラーピッカー
     this.tab.pages[1]?.addInput(this.COLOR, "Color");
 
-    const ERASER = {
-      EraserMode: false,
-    };
-    this.tab.pages[1]?.addInput(ERASER, "EraserMode");
+    // 消しゴムモード
+    this.tab.pages[1]?.addInput(this.ERASER, "EraserMode");
 
     const clearBtn = this.tab.pages[1]?.addButton({
       title: "Clear Black Board",
@@ -223,6 +231,15 @@ class ControlPanel {
    */
   public changeColorPicker(color: string): void {
     this.COLOR.Color = color;
+    // UIの反映
+    this.pane?.refresh();
+  }
+
+  /**
+   * 消しゴムモードの切り替え
+   */
+  public toggleEraserMode(): void {
+    this.ERASER.EraserMode = !this.ERASER.EraserMode;
     // UIの反映
     this.pane?.refresh();
   }

@@ -164,6 +164,14 @@ class Paint {
     this.color = color;
   }
 
+  /**
+   * 前回の線の色を設定
+   * @param {string} color 色
+   */
+  public setPrevLineColor(color: string): void {
+    this.prevColor = color;
+  }
+
   public getLineColor = () => this.color;
 
   /**
