@@ -1,6 +1,11 @@
 /**
  * お絵かき機能
  */
+
+/** 描画可能領域 */
+const DRAW_OFFSET_X = 25;
+const DRAW_OFFSET_Y = 25;
+
 class Paint {
   /** HTML canvas */
   private canvas: HTMLCanvasElement | null | undefined;
@@ -24,6 +29,21 @@ class Paint {
    */
   constructor() {
     console.log("Paint Constructor");
+  }
+
+  /**
+   * 描画可能かどうか
+   * @param {number} x 描画位置のX座標
+   * @param {number} y 描画位置のY座標
+   * @returns true:描画可能 false:描画不可能
+   */
+  private canDraw(x: number, y: number): boolean {
+    if (x >= DRAW_OFFSET_X && x < this.width - DRAW_OFFSET_X) {
+      if (y >= DRAW_OFFSET_Y && y < this.height - DRAW_OFFSET_Y) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -65,17 +85,24 @@ class Paint {
 
     this.canvas.addEventListener("mousedown", (e) => {
       this.clickFlg = 1;
+      if (!this.canDraw(e.offsetX, e.offsetY)) return;
       this.draw(e.offsetX, e.offsetY);
     });
 
     this.canvas.addEventListener("mouseup", (e) => {
       this.clickFlg = 0;
+      if (!this.canDraw(e.offsetX, e.offsetY)) return;
       this.draw(e.offsetX, e.offsetY);
     });
 
     this.canvas.addEventListener("mousemove", (e) => {
       if (!this.clickFlg) return false;
+      if (!this.canDraw(e.offsetX, e.offsetY)) return;
       this.draw(e.offsetX, e.offsetY);
+    });
+
+    this.canvas.addEventListener("mouseout", () => {
+      this.clickFlg = 0;
     });
 
     this.canvas.addEventListener("touchstart", () => {
@@ -95,10 +122,10 @@ class Paint {
 
       // ファーストタッチのみ処理
       if (touch) {
-        this.draw(
-          touch.clientX - this.canvas.getBoundingClientRect().left,
-          touch.clientY - this.canvas.getBoundingClientRect().top
-        );
+        const touchX = touch.clientX - this.canvas.getBoundingClientRect().left;
+        const touchY = touch.clientY - this.canvas.getBoundingClientRect().top;
+        if (!this.canDraw(touchX, touchY)) return;
+        this.draw(touchX, touchY);
       }
     });
   }
