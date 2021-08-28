@@ -39,15 +39,17 @@ export const handlePlayer = ({
           }
         };
       }
+      three.resetTextMesh();
       for (
         let phrase = player.video.firstPhrase;
         phrase;
         phrase = phrase.next
       ) {
+        three.addTextMesh(phrase.text);
         phrase.animate = (now, u) => {
           if (u.contains(now) && elements.phrase) {
             elements.phrase.textContent = u.text;
-            three.updateText(u.text);
+            three.showTextMeshToScene(u.text);
           }
         };
       }
@@ -87,7 +89,7 @@ export const handlePlayer = ({
             }
             if (elements.phrase) {
               elements.phrase.textContent = "-";
-              three.updateText();
+              three.removeTextMeshFromScene();
             }
             const progress = parseFloat(button.value) / 100;
             player.video && player.requestMediaSeek(progress * songLengthMs);
@@ -172,7 +174,7 @@ export const handlePlayer = ({
       }
       if (elements.phrase) {
         elements.phrase.textContent = "-";
-        three.updateText();
+        three.removeTextMeshFromScene();
       }
     },
   handleOnStop:
@@ -183,7 +185,7 @@ export const handlePlayer = ({
       }
       if (elements.phrase) {
         elements.phrase.textContent = "-";
-        three.updateText();
+        three.removeTextMeshFromScene();
       }
     },
 });

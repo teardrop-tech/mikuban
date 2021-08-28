@@ -9,7 +9,6 @@ window.onload = async () => {
   const three = await setupThree({
     debug: false,
   });
-  three.updateText();
 
   // 画面リサイズ時のコールバックの設定
   window.addEventListener("resize", resizeDisplay(three));
