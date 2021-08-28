@@ -172,7 +172,6 @@ export const handlePlayer = ({
       }
       if (elements.phrase) {
         elements.phrase.textContent = "-";
-        three.removeTextMeshFromScene();
       }
     },
   handleOnStop:
