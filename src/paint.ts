@@ -18,7 +18,7 @@ class Paint {
   /** クリック中の判定1:クリック開始 2:クリック中 */
   private clickFlg = 0;
   /** 線の色 */
-  private color = "#66DDCC";
+  private color = "#54c5a3";
   /** 前回の線の色 */
   private prevColor = this.color;
   /** 線の太さ */

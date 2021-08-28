@@ -6,7 +6,8 @@
   --color-eraser: linear-gradient(0deg, #0c023a 80%, #a06b1c 80%);
   --color-white: white;
   --color-miku: #54c5a3;
-  --color-rin: #c5b054;
+  --color-rin: #eeaa00;
+  --color-ren: #ffee77;
   --color-luka: #c5548d;
   --color-kaito: #545cc5;
   --color-meiko: #c55454;
@@ -43,7 +44,7 @@ body {
   height: 36px;
   position: fixed;
   bottom: 12px;
-  left: calc(50% - 300px);
+  left: calc(50% - 380px);
   border-radius: 4px 4px 8px 8px;
   background: var(--color-eraser);
 }
@@ -58,37 +59,43 @@ body {
 }
 
 #chalks > #chalk-white {
-  left: calc(50% - 200px);
+  left: calc(50% - 280px);
   background-color: var(--color-white);
   border-color: var(--color-white);
 }
 
 #chalks > #chalk-miku {
-  left: calc(50% - 100px);
+  left: calc(50% - 180px);
   background-color: var(--color-miku);
   border-color: var(--color-miku);
 }
 
 #chalks > #chalk-rin {
-  left: 50%;
+  left: calc(50% - 80px);
   background-color: var(--color-rin);
   border-color: var(--color-rin);
 }
 
+#chalks > #chalk-ren {
+  left: 51.25%;
+  background-color: var(--color-ren);
+  border-color: var(--color-ren);
+}
+
 #chalks > #chalk-luka {
-  left: calc(50% + 100px);
+  left: calc(51.25% + 100px);
   background-color: var(--color-luka);
   border-color: var(--color-luka);
 }
 
 #chalks > #chalk-kaito {
-  left: calc(50% + 200px);
+  left: calc(51.25% + 200px);
   background-color: var(--color-kaito);
   border-color: var(--color-kaito);
 }
 
 #chalks > #chalk-meiko {
-  left: calc(50% + 300px);
+  left: calc(51.25% + 300px);
   background-color: var(--color-meiko);
   border-color: var(--color-meiko);
 }

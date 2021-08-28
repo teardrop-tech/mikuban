@@ -16,6 +16,10 @@ class ControlPanel {
   private mediaFolder: FolderApi | null | undefined;
   /** 曲変更フラグ */
   private changeMusicFlg = false;
+  /** カラーピッカーのパラメータ */
+  private COLOR = {
+    Color: Paint.getLineColor(),
+  };
 
   constructor() {
     console.log("ControlPanel constructor");
@@ -179,10 +183,7 @@ class ControlPanel {
       max: 100,
     });
 
-    const COLOR = {
-      Color: Paint.getLineColor(),
-    };
-    this.tab.pages[1]?.addInput(COLOR, "Color");
+    this.tab.pages[1]?.addInput(this.COLOR, "Color");
 
     const ERASER = {
       EraserMode: false,
@@ -214,6 +215,16 @@ class ControlPanel {
    */
   public setMusicChangeFlg(flg: boolean): void {
     this.changeMusicFlg = flg;
+  }
+
+  /**
+   * カラーピッカーの色変更
+   * @param {string} color カラーコード
+   */
+  public changeColorPicker(color: string): void {
+    this.COLOR.Color = color;
+    // UIの反映
+    this.pane?.refresh();
   }
 }
 export default new ControlPanel();

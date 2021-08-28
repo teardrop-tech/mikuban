@@ -81,6 +81,9 @@ window.onload = async () => {
   // コントロールパネルの表示
   ControlPanel.init(player);
 
+  // チョークボタンの初期化
+  initChalkButtons();
+
   three.play();
 };
 
@@ -95,4 +98,70 @@ const resizeDisplay = (three: ThreeWrapper) => () => {
   three.resizeDisplay(width, height);
   // paint canvasのリサイズ
   Paint.setCanvasSize(width, height);
+};
+
+/**
+ * チョークボタンの初期化
+ */
+const initChalkButtons = () => {
+  const element = document.getElementById("chalks");
+  element?.childNodes.forEach((button) => {
+    if (!(button instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    button.disabled = false;
+
+    switch (button.id) {
+      case "chalk-white":
+        button.onclick = (ev) => {
+          ev.preventDefault();
+          Paint.setLineColor("#ffffff");
+          ControlPanel.changeColorPicker("#ffffff");
+        };
+        break;
+      case "chalk-miku":
+        button.onclick = (ev) => {
+          ev.preventDefault();
+          Paint.setLineColor("#54c5a3");
+          ControlPanel.changeColorPicker("#54c5a3");
+        };
+        break;
+      case "chalk-rin":
+        button.onclick = (ev) => {
+          ev.preventDefault();
+          Paint.setLineColor("#eeaa00");
+          ControlPanel.changeColorPicker("#eeaa00");
+        };
+        break;
+      case "chalk-ren":
+        button.onclick = (ev) => {
+          ev.preventDefault();
+          Paint.setLineColor("#ffee77");
+          ControlPanel.changeColorPicker("#ffee77");
+        };
+        break;
+      case "chalk-luka":
+        button.onclick = (ev) => {
+          ev.preventDefault();
+          Paint.setLineColor("#c5548d");
+          ControlPanel.changeColorPicker("#c5548d");
+        };
+        break;
+      case "chalk-kaito":
+        button.onclick = (ev) => {
+          ev.preventDefault();
+          Paint.setLineColor("#545cc5");
+          ControlPanel.changeColorPicker("#545cc5");
+        };
+        break;
+      case "chalk-meiko":
+        button.onclick = (ev) => {
+          ev.preventDefault();
+          Paint.setLineColor("#c55454");
+          ControlPanel.changeColorPicker("#c55454");
+        };
+        break;
+    }
+  });
 };
