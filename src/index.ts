@@ -120,6 +120,8 @@ const initChalkButtons = () => {
           ControlPanel.changeColorPicker(theme.color.meiko);
         };
         break;
+      default:
+        throw new Error(`Unknown button id: ${button.id}`);
     }
   });
 };

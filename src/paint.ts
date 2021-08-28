@@ -10,9 +10,9 @@ class Paint {
   /** コンテキスト */
   private context: CanvasRenderingContext2D | null | undefined;
   /** canvasの幅 */
-  private width = 0;
+  private width: number;
   /** canvasの高さ */
-  private height = 0;
+  private height: number;
   /** クリック中の判定1:クリック開始 2:クリック中 */
   private clickFlg = 0;
   /** 線の色 */
@@ -26,6 +26,8 @@ class Paint {
    * コンストラクタ
    */
   constructor() {
+    this.width = 0;
+    this.height = 0;
     this.color = theme.color.miku;
     this.prevColor = this.color;
     this.bold = paintSettings.lineBold;

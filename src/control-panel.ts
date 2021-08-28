@@ -13,13 +13,13 @@ class ControlPanel {
   /** コントロールパネル本体 */
   private pane: Pane;
   /** 曲変更フラグ */
-  private changeMusicFlg = false;
+  private changeMusicFlg: boolean;
   /** カラーピッカーのパラメータ */
-  private COLOR = {
+  private colorParam = {
     Color: Paint.getLineColor(),
   };
   /** 消しゴムモードのパラメータ */
-  private ERASER = {
+  private eraserParam = {
     EraserMode: false,
   };
 
@@ -32,6 +32,7 @@ class ControlPanel {
       title: "Control Panel",
       expanded: false,
     });
+    this.changeMusicFlg = false;
   }
 
   /**
@@ -124,21 +125,23 @@ class ControlPanel {
         Paint.setLineBold(ev.value);
       });
 
-    tab.pages[1]?.addInput(this.COLOR, "Color").on("change", (ev) => {
-      if (this.ERASER.EraserMode) {
+    tab.pages[1]?.addInput(this.colorParam, "Color").on("change", (ev) => {
+      if (this.eraserParam.EraserMode) {
         Paint.setPrevLineColor(ev.value);
       } else {
         Paint.setLineColor(ev.value);
       }
     });
 
-    tab.pages[1]?.addInput(this.ERASER, "EraserMode").on("change", (ev) => {
-      if (ev.value) {
-        Paint.setLineColor(theme.color.blackboard);
-      } else {
-        Paint.changePrevColor();
-      }
-    });
+    tab.pages[1]
+      ?.addInput(this.eraserParam, "EraserMode")
+      .on("change", (ev) => {
+        if (ev.value) {
+          Paint.setLineColor(theme.color.blackboard);
+        } else {
+          Paint.changePrevColor();
+        }
+      });
 
     tab.pages[1]
       ?.addButton({
@@ -170,7 +173,7 @@ class ControlPanel {
    * @param {string} color カラーコード
    */
   public changeColorPicker(color: string): void {
-    this.COLOR.Color = color;
+    this.colorParam.Color = color;
     // UIの反映
     this.pane?.refresh();
   }
@@ -179,7 +182,7 @@ class ControlPanel {
    * 消しゴムモードの切り替え
    */
   public toggleEraserMode(): void {
-    this.ERASER.EraserMode = !this.ERASER.EraserMode;
+    this.eraserParam.EraserMode = !this.eraserParam.EraserMode;
     // UIの反映
     this.pane?.refresh();
   }
