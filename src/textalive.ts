@@ -2,7 +2,7 @@ import { Player, Ease, IPlayerApp } from "textalive-app-api";
 
 import { Nullable } from "./utils";
 import { ThreeWrapper } from "./three";
-import ControlPanel from "./controlPanel";
+import ControlPanel from "./control-panel";
 
 export const handlePlayer = ({
   player,

@@ -3,7 +3,7 @@ import { Player } from "textalive-app-api";
 import { setupThree, ThreeWrapper } from "./three";
 import { handlePlayer } from "./textalive";
 import Paint from "./paint";
-import ControlPanel from "./controlPanel";
+import ControlPanel from "./control-panel";
 
 window.onload = async () => {
   const three = await setupThree({
