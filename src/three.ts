@@ -1,10 +1,6 @@
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 
-interface ThreeOption {
-  debug?: boolean;
-}
-
 interface State {
   textMeshes: Record<string, THREE.Mesh>;
   lastText: string;
@@ -32,7 +28,7 @@ export interface ThreeWrapper {
   resizeDisplay: (width: number, height: number) => void;
 }
 
-export const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
+export const setupThree = (): Promise<ThreeWrapper> =>
   new Promise((resolve) => {
     const canvas = document.querySelector("#three") as HTMLCanvasElement;
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
@@ -48,13 +44,10 @@ export const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
     const camera = new THREE.PerspectiveCamera(45, aspect);
     camera.position.set(0, 0, 500);
     camera.lookAt(scene.position);
-    if (option?.debug) {
-      scene.add(new THREE.AxesHelper(1000));
-    }
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
-    const texture = new THREE.TextureLoader().load("public/texture.png");
+    const texture = new THREE.TextureLoader().load("texture.png");
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(0.01, 0.01);
     const material = [
@@ -71,7 +64,7 @@ export const setupThree = (option?: ThreeOption): Promise<ThreeWrapper> =>
     const state = initState;
 
     const loader = new TTFLoader();
-    loader.load("./public/TanukiMagic.ttf", (json: unknown) => {
+    loader.load("TanukiMagic.ttf", (json: unknown) => {
       const font = new THREE.FontLoader().parse(json);
       const play = () => {
         renderer.render(scene, camera);

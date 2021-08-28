@@ -1,4 +1,4 @@
-# mm2021 [![GitHub Actions Status](https://github.com/teardrop-tech/mm2021/actions/workflows/build.yml/badge.svg)](https://github.com/teardrop-tech/mm2021/actions)
+# mm2021 [![GitHub Actions Status](https://github.com/teardrop-tech/mm2021/actions/workflows/build.yml/badge.svg)](https://github.com/teardrop-tech/mm2021/actions) [![Netlify Status](https://api.netlify.com/api/v1/badges/501e0435-c297-4091-99d2-f60045463b61/deploy-status)](https://app.netlify.com/sites/teardrop-mm2021/deploys)
 
 ### Setup
 
@@ -17,6 +17,12 @@ npm run start
 ```
 
 Open <http://localhost:8080>
+
+#### With debug mode
+
+```shell
+npm run start:debug
+```
 
 #### With TextAlive App Debugger
 
