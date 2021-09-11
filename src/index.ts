@@ -20,9 +20,6 @@ window.onload = async () => {
     token: process.env.TOKEN ?? "",
   });
 
-  // ペイント初期化
-  Paint.init();
-
   // コントロールパネルの表示
   ControlPanel.init(player);
 
@@ -44,8 +41,6 @@ const resizeDisplay = (three: ThreeWrapper) => () => {
   const height: number = window.innerHeight;
   // three canvasのリサイズ
   three.resizeDisplay(width, height);
-  // paint canvasのリサイズ
-  Paint.setCanvasSize(width, height);
 };
 
 /**

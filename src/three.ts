@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
+import { MeshLine, MeshLineMaterial } from "meshline";
 
 interface State {
   textMeshes: Record<string, THREE.Mesh>;
@@ -31,21 +32,34 @@ export interface ThreeWrapper {
 export const setupThree = (): Promise<ThreeWrapper> =>
   new Promise((resolve) => {
     const canvas = document.querySelector("#three") as HTMLCanvasElement;
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ canvas });
 
-    const width: number = window.innerWidth;
-    const height: number = window.innerHeight;
-    const aspect: number = width / height;
+    const { innerWidth, innerHeight } = window;
 
-    renderer.setSize(width, height);
+    renderer.setSize(innerWidth, innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, aspect);
+
+    const camera = new THREE.OrthographicCamera(
+      innerWidth / -2, // left
+      innerWidth / 2, // right
+      innerHeight / 2, // top
+      innerHeight / -2, // bottom
+      1, // near
+      1000 // far
+    );
     camera.position.set(0, 0, 500);
     camera.lookAt(scene.position);
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-    scene.add(ambientLight);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1));
+
+    scene.add(
+      new THREE.Mesh(
+        new THREE.PlaneGeometry(innerWidth, innerHeight),
+        new THREE.MeshBasicMaterial({ color: 0x3d5347 })
+      )
+    );
 
     const texture = new THREE.TextureLoader().load("texture.png");
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -60,6 +74,56 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         color: 0xffffff,
       }),
     ];
+
+    const paintTexture = new THREE.TextureLoader().load("texture.png");
+    paintTexture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+    let meshLine = new MeshLine();
+    const meshMaterial = new MeshLineMaterial({
+      useMap: 1,
+      map: paintTexture,
+      color: 0xffffff, // TODO: Change color
+      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+      sizeAttenuation: 1,
+      lineWidth: 12, // TODO: Change bold
+      repeat: new THREE.Vector2(3, 1),
+    });
+    meshMaterial.depthTest = false;
+    meshMaterial.transparent = true;
+
+    const raycaster = new THREE.Raycaster();
+    const points = new Array<number>();
+    let moved = false;
+    // TODO: Fire touch event
+    window.addEventListener("pointermove", (event: PointerEvent) => {
+      const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      );
+      if (moved) {
+        raycaster.setFromCamera(mouse, camera);
+        // calculate objects intersecting the picking ray
+        const intersects = raycaster.intersectObjects(scene.children);
+        if (intersects?.length > 0) {
+          const point = intersects[0]?.point;
+          if (point) {
+            points.push(point.x); // X
+            points.push(point.y); // Y
+            points.push(1); // Z
+            meshLine.setPoints(points);
+          }
+        }
+      }
+    });
+    window.addEventListener("pointerdown", () => {
+      moved = true;
+    });
+    window.addEventListener("pointerup", () => {
+      moved = false;
+      points.splice(0, points.length);
+      meshLine = new MeshLine();
+      scene.add(new THREE.Mesh(meshLine.geometry, meshMaterial));
+    });
 
     const state = initState;
 
@@ -117,7 +181,6 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       const resizeDisplay = (width: number, height: number) => {
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
-        camera.aspect = width / height;
       };
       resolve({
         scene,
