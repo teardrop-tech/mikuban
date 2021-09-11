@@ -4,7 +4,7 @@ import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 
 import { safetyGetElementById } from "./utils";
 import Paint from "./paint";
-import { theme, musicList } from "./definition";
+import { theme, paintSettings, musicList } from "./definition";
 
 /**
  * コントロールパネル
@@ -14,6 +14,8 @@ class ControlPanel {
   private pane: Pane;
   /** 曲変更フラグ */
   private changeMusicFlg: boolean;
+  /** ペイントの線の太さ */
+  private lineWidth;
   /** カラーピッカーのパラメータ */
   private colorParam = {
     Color: Paint.getLineColor(),
@@ -33,6 +35,7 @@ class ControlPanel {
       expanded: false,
     });
     this.changeMusicFlg = false;
+    this.lineWidth = paintSettings.lineBold;
   }
 
   /**
@@ -112,7 +115,6 @@ class ControlPanel {
         player.volume = Math.round(ev.value);
       });
 
-    /** ペイント関連 */
     tab.pages[1]
       ?.addBlade({
         view: "slider",
@@ -122,7 +124,7 @@ class ControlPanel {
         value: Paint.getLineBold(),
       })
       .on("change", (ev) => {
-        Paint.setLineBold(ev.value);
+        this.lineWidth = ev.value;
       });
 
     tab.pages[1]?.addInput(this.colorParam, "Color").on("change", (ev) => {
@@ -167,6 +169,12 @@ class ControlPanel {
   public setMusicChangeFlg(flg: boolean): void {
     this.changeMusicFlg = flg;
   }
+
+  /**
+   * ペイントの線の太さを取得
+   * @returns {number} this.lineWidth 線の太さ
+   */
+  public getLineWidth = (): number => this.lineWidth;
 
   /**
    * カラーピッカーの色変更

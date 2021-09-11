@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 import { MeshLine, MeshLineMaterial } from "meshline";
+import ControlPanel from "./control-panel";
 
 interface State {
   textMeshes: Record<string, THREE.Mesh>;
@@ -79,7 +80,7 @@ export const setupThree = (): Promise<ThreeWrapper> =>
     paintTexture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
     let meshLine = new MeshLine();
-    const meshMaterial = new MeshLineMaterial({
+    let meshMaterial = new MeshLineMaterial({
       useMap: 1,
       map: paintTexture,
       color: 0xffffff, // TODO: Change color
@@ -122,6 +123,17 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       moved = false;
       points.splice(0, points.length);
       meshLine = new MeshLine();
+      meshMaterial = new MeshLineMaterial({
+        useMap: 1,
+        map: paintTexture,
+        color: 0xffffff, // TODO: Change color
+        resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+        sizeAttenuation: 1,
+        lineWidth: ControlPanel.getLineWidth(),
+        repeat: new THREE.Vector2(3, 1),
+      });
+      meshMaterial.depthTest = false;
+      meshMaterial.transparent = true;
       scene.add(new THREE.Mesh(meshLine.geometry, meshMaterial));
     });
 

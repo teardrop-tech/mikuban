@@ -2,7 +2,6 @@ import { setupThree, ThreeWrapper } from "./three";
 import { initializePlayer } from "./textalive";
 import { safetyGetElementById } from "./utils";
 import { theme } from "./definition";
-import Paint from "./paint";
 import ControlPanel from "./control-panel";
 
 window.onload = async () => {
