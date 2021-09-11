@@ -126,7 +126,7 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       meshMaterial = new MeshLineMaterial({
         useMap: 1,
         map: paintTexture,
-        color: 0xffffff, // TODO: Change color
+        color: ControlPanel.getLineColor(),
         resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
         sizeAttenuation: 1,
         lineWidth: ControlPanel.getLineWidth(),

@@ -17,9 +17,7 @@ class ControlPanel {
   /** ペイントの線の太さ */
   private lineWidth;
   /** カラーピッカーのパラメータ */
-  private colorParam = {
-    Color: Paint.getLineColor(),
-  };
+  private colorParam: { Color: string };
   /** 消しゴムモードのパラメータ */
   private eraserParam = {
     EraserMode: false,
@@ -36,6 +34,7 @@ class ControlPanel {
     });
     this.changeMusicFlg = false;
     this.lineWidth = paintSettings.lineBold;
+    this.colorParam = { Color: theme.color.miku };
   }
 
   /**
@@ -175,6 +174,12 @@ class ControlPanel {
    * @returns {number} this.lineWidth 線の太さ
    */
   public getLineWidth = (): number => this.lineWidth;
+
+  /**
+   * ペイントの線の色を取得
+   * @returns {number} this.colorParam.Color 線の色
+   */
+  public getLineColor = (): string => this.colorParam.Color;
 
   /**
    * カラーピッカーの色変更
