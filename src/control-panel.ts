@@ -10,24 +10,40 @@ import { theme, musicList } from "./definition";
  * コントロールパネル
  */
 class ControlPanel {
+  /** コントロールパネル本体 */
+  private pane: Pane;
   /** 曲変更フラグ */
-  private changeMusicFlg = false;
+  private changeMusicFlg: boolean;
+  /** カラーピッカーのパラメータ */
+  private colorParam = {
+    Color: Paint.getLineColor(),
+  };
+  /** 消しゴムモードのパラメータ */
+  private eraserParam = {
+    EraserMode: false,
+  };
+
+  /**
+   * コンストラクタ
+   */
+  constructor() {
+    // コントロールパネルの生成
+    this.pane = new Pane({
+      title: "Control Panel",
+      expanded: false,
+    });
+    this.changeMusicFlg = false;
+  }
 
   /**
    * 初期化
    * @param {Player} player TextAlive Player
    */
   public init(player: Player): void {
-    // コントロールパネルの生成
-    const pane = new Pane({
-      title: "Control Panel",
-      expanded: false,
-    });
-
-    pane.registerPlugin(EssentialsPlugin);
+    this.pane.registerPlugin(EssentialsPlugin);
 
     // タブの追加
-    const tab = pane.addTab({
+    const tab = this.pane.addTab({
       pages: [{ title: "Music" }, { title: "Paint" }],
     });
 
@@ -53,11 +69,7 @@ class ControlPanel {
     // セパレータの追加
     tab.pages[0]?.addSeparator();
 
-    const mediaFolder = tab.pages[0]?.addFolder({
-      title: "Media Controls",
-    });
-
-    mediaFolder
+    tab.pages[0]
       ?.addBlade({
         view: "buttongrid",
         size: [4, 1],
@@ -84,14 +96,18 @@ class ControlPanel {
         }
       });
 
-    mediaFolder
-      ?.addBlade({
-        view: "slider",
-        label: "Volume",
-        min: 0,
-        max: 100,
-        value: player.volume,
-      })
+    tab.pages[0]
+      ?.addInput(
+        {
+          Volume: player.volume,
+        },
+        "Volume",
+        {
+          step: 1,
+          min: 0,
+          max: 100,
+        }
+      )
       .on("change", (ev) => {
         player.volume = Math.round(ev.value);
       });
@@ -109,27 +125,19 @@ class ControlPanel {
         Paint.setLineBold(ev.value);
       });
 
-    tab.pages[1]
-      ?.addInput(
-        {
-          Color: Paint.getLineColor(),
-        },
-        "Color"
-      )
-      .on("change", (ev) => {
+    tab.pages[1]?.addInput(this.colorParam, "Color").on("change", (ev) => {
+      if (this.eraserParam.EraserMode) {
+        Paint.setPrevLineColor(ev.value);
+      } else {
         Paint.setLineColor(ev.value);
-      });
+      }
+    });
 
     tab.pages[1]
-      ?.addInput(
-        {
-          EraserMode: false,
-        },
-        "EraserMode"
-      )
+      ?.addInput(this.eraserParam, "EraserMode")
       .on("change", (ev) => {
         if (ev.value) {
-          Paint.setLineColor(theme.color.miku);
+          Paint.setLineColor(theme.color.blackboard);
         } else {
           Paint.changePrevColor();
         }
@@ -158,6 +166,25 @@ class ControlPanel {
    */
   public setMusicChangeFlg(flg: boolean): void {
     this.changeMusicFlg = flg;
+  }
+
+  /**
+   * カラーピッカーの色変更
+   * @param {string} color カラーコード
+   */
+  public changeColorPicker(color: string): void {
+    this.colorParam.Color = color;
+    // UIの反映
+    this.pane?.refresh();
+  }
+
+  /**
+   * 消しゴムモードの切り替え
+   */
+  public toggleEraserMode(): void {
+    this.eraserParam.EraserMode = !this.eraserParam.EraserMode;
+    // UIの反映
+    this.pane?.refresh();
   }
 }
 export default new ControlPanel();
