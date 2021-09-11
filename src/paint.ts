@@ -1,29 +1,57 @@
 /**
  * お絵かき機能
  */
+
+import { theme, paintSettings } from "./definition";
+
 class Paint {
   /** HTML canvas */
   private canvas: HTMLCanvasElement | null | undefined;
   /** コンテキスト */
   private context: CanvasRenderingContext2D | null | undefined;
   /** canvasの幅 */
-  private width = 0;
+  private width: number;
   /** canvasの高さ */
-  private height = 0;
+  private height: number;
   /** クリック中の判定1:クリック開始 2:クリック中 */
   private clickFlg = 0;
   /** 線の色 */
-  private color = "#66DDCC";
+  private color: string;
   /** 前回の線の色 */
-  private prevColor = this.color;
+  private prevColor: string;
   /** 線の太さ */
-  private bold = 10;
+  private bold: number;
 
   /**
    * コンストラクタ
    */
   constructor() {
-    console.log("Paint Constructor");
+    this.width = 0;
+    this.height = 0;
+    this.color = theme.color.miku;
+    this.prevColor = this.color;
+    this.bold = paintSettings.lineBold;
+  }
+
+  /**
+   * 描画可能かどうか
+   * @param {number} x 描画位置のX座標
+   * @param {number} y 描画位置のY座標
+   * @returns true:描画可能 false:描画不可能
+   */
+  private canDraw(x: number, y: number): boolean {
+    if (
+      x >= paintSettings.drawOffset.x &&
+      x < this.width - paintSettings.drawOffset.x
+    ) {
+      if (
+        y >= paintSettings.drawOffset.y &&
+        y < this.height - paintSettings.drawOffset.y
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -65,17 +93,24 @@ class Paint {
 
     this.canvas.addEventListener("mousedown", (e) => {
       this.clickFlg = 1;
+      if (!this.canDraw(e.offsetX, e.offsetY)) return;
       this.draw(e.offsetX, e.offsetY);
     });
 
     this.canvas.addEventListener("mouseup", (e) => {
       this.clickFlg = 0;
+      if (!this.canDraw(e.offsetX, e.offsetY)) return;
       this.draw(e.offsetX, e.offsetY);
     });
 
     this.canvas.addEventListener("mousemove", (e) => {
       if (!this.clickFlg) return false;
+      if (!this.canDraw(e.offsetX, e.offsetY)) return;
       this.draw(e.offsetX, e.offsetY);
+    });
+
+    this.canvas.addEventListener("mouseout", () => {
+      this.clickFlg = 0;
     });
 
     this.canvas.addEventListener("touchstart", () => {
@@ -95,10 +130,10 @@ class Paint {
 
       // ファーストタッチのみ処理
       if (touch) {
-        this.draw(
-          touch.clientX - this.canvas.getBoundingClientRect().left,
-          touch.clientY - this.canvas.getBoundingClientRect().top
-        );
+        const touchX = touch.clientX - this.canvas.getBoundingClientRect().left;
+        const touchY = touch.clientY - this.canvas.getBoundingClientRect().top;
+        if (!this.canDraw(touchX, touchY)) return;
+        this.draw(touchX, touchY);
       }
     });
   }
@@ -135,6 +170,14 @@ class Paint {
     // 前回の色を保持
     this.prevColor = this.color;
     this.color = color;
+  }
+
+  /**
+   * 前回の線の色を設定
+   * @param {string} color 色
+   */
+  public setPrevLineColor(color: string): void {
+    this.prevColor = color;
   }
 
   public getLineColor = () => this.color;

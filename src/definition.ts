@@ -2,9 +2,20 @@ export const theme = {
   color: {
     miku: "#54c5a3",
     rin: "#c5b054",
+    ren: "#ffee77",
     luka: "#c5548d",
     kaito: "#545cc5",
     meiko: "#c55454",
+    blackboard: "#3d5347",
+    white: "#ffffff",
+  },
+} as const;
+
+export const paintSettings = {
+  lineBold: 10,
+  drawOffset: {
+    x: 25,
+    y: 25,
   },
 } as const;
 
