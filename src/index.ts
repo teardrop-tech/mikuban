@@ -1,8 +1,7 @@
 import { setupThree, ThreeWrapper } from "./three";
 import { initializePlayer } from "./textalive";
-import { safetyGetElementById } from "./utils";
+import { isThemeColorId, safetyGetElementById } from "./utils";
 import { theme } from "./definition";
-import Paint from "./paint";
 import ControlPanel from "./control-panel";
 
 window.onload = async () => {
@@ -23,10 +22,7 @@ window.onload = async () => {
   // コントロールパネルの表示
   ControlPanel.init(player);
 
-  // 黒板消しボタンの初期化
-  initEraserButton();
-
-  // チョークボタンの初期化
+  // チョーク&黒板消しボタンの初期化
   initChalkButtons();
 
   three.play();
@@ -44,23 +40,6 @@ const resizeDisplay = (three: ThreeWrapper) => () => {
 };
 
 /**
- * 黒板消しボタンの初期化
- */
-const initEraserButton = () => {
-  const button = safetyGetElementById("eraser");
-  if (!(button instanceof HTMLButtonElement)) {
-    return;
-  }
-
-  button.disabled = false;
-
-  button.onclick = (ev) => {
-    ev.preventDefault();
-    ControlPanel.toggleEraserMode();
-  };
-};
-
-/**
  * チョークボタンの初期化
  */
 const initChalkButtons = () => {
@@ -69,54 +48,29 @@ const initChalkButtons = () => {
     if (!(button instanceof HTMLButtonElement)) {
       return;
     }
-
     button.disabled = false;
 
-    switch (button.id) {
-      case "chalk-white":
-        button.onclick = (ev) => {
-          ev.preventDefault();
-          ControlPanel.changeColorPicker(theme.color.white);
-        };
-        break;
-      case "chalk-miku":
-        button.onclick = (ev) => {
-          ev.preventDefault();
-          ControlPanel.changeColorPicker(theme.color.miku);
-        };
-        break;
-      case "chalk-rin":
-        button.onclick = (ev) => {
-          ev.preventDefault();
-          ControlPanel.changeColorPicker(theme.color.rin);
-        };
-        break;
-      case "chalk-ren":
-        button.onclick = (ev) => {
-          ev.preventDefault();
-          ControlPanel.changeColorPicker(theme.color.ren);
-        };
-        break;
-      case "chalk-luka":
-        button.onclick = (ev) => {
-          ev.preventDefault();
-          ControlPanel.changeColorPicker(theme.color.luka);
-        };
-        break;
-      case "chalk-kaito":
-        button.onclick = (ev) => {
-          ev.preventDefault();
-          ControlPanel.changeColorPicker(theme.color.kaito);
-        };
-        break;
-      case "chalk-meiko":
-        button.onclick = (ev) => {
-          ev.preventDefault();
-          ControlPanel.changeColorPicker(theme.color.meiko);
-        };
-        break;
-      default:
-        throw new Error(`Unknown button id: ${button.id}`);
+    // 黒板消し
+    if (button.id === "eraser") {
+      button.onclick = (ev) => {
+        ev.preventDefault();
+        ControlPanel.toggleEraserMode();
+      };
+      return;
     }
+
+    // チョーク
+    const colorId = button.id;
+    if (isThemeColorId(colorId)) {
+      const color = theme.color[colorId];
+      button.style.backgroundColor = button.style.borderColor = color;
+      button.onclick = (ev) => {
+        ev.preventDefault();
+        ControlPanel.changeColorPicker(color);
+      };
+      return;
+    }
+
+    throw new Error(`Unknown button id: ${button.id}`);
   });
 };

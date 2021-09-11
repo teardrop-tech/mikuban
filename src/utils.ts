@@ -1,3 +1,5 @@
+import { theme } from "./definition";
+
 export const safetyGetElementById = (id: string): HTMLElement => {
   const element = document.getElementById(id);
   if (!element) {
@@ -5,3 +7,9 @@ export const safetyGetElementById = (id: string): HTMLElement => {
   }
   return element;
 };
+
+/**
+ * テーマに含まれる色IDか
+ */
+export const isThemeColorId = (id: string): id is keyof typeof theme.color =>
+  id in theme.color;
