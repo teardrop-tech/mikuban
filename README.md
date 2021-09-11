@@ -37,7 +37,7 @@ Open <https://developer.textalive.jp/app/run/> and input `TextAlive App URL` to 
 
 ```shell
 npm run build
-npx serve
+npx -y serve dist
 ```
 
 Open <http://localhost:5000>
