@@ -1,5 +1,4 @@
 :root {
-  --color-blackboard-background: #3d5347;
   --color-blackboard-border: #8d4e1a;
   --color-loading-border: rgba(255, 255, 255, 0.2);
   --color-loading-background: rgba(0, 0, 0, 0.3);
@@ -29,7 +28,6 @@ body {
   position: relative;
   outline: 20px ridge var(--color-blackboard-border);
   outline-offset: -20px;
-  background-color: var(--color-blackboard-background);
 }
 
 #layer-wrap > canvas {
