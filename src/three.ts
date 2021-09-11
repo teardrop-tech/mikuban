@@ -1,6 +1,13 @@
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 import { MeshLine, MeshLineMaterial } from "meshline";
+import { toVertical, toVerticalDate } from "./utils";
+import { Font } from "three";
+
+interface SongInfo {
+  title: string;
+  artist: string;
+}
 
 interface State {
   textMeshes: Record<string, THREE.Mesh>;
@@ -12,10 +19,19 @@ const initState: State = {
   lastText: "",
 };
 
+const fontCommonParams = {
+  height: 0,
+  bevelEnabled: true,
+  bevelThickness: 0,
+  bevelSize: 1,
+  bevelSegments: 1,
+};
+
 export interface ThreeWrapper {
   scene: THREE.Scene;
   font: THREE.Font;
   play: () => void;
+  showSongInfo: (info: SongInfo) => void;
   addTextMesh: (text: string) => void;
   resetTextMesh: () => void;
   showTextMeshToScene: (text: string) => void;
@@ -127,9 +143,33 @@ export const setupThree = (): Promise<ThreeWrapper> =>
 
     const state = initState;
 
+    let font: Font;
     const loader = new TTFLoader();
     loader.load("TanukiMagic.ttf", (json: unknown) => {
-      const font = new THREE.FontLoader().parse(json);
+      font = new THREE.FontLoader().parse(json);
+
+      const dateMesh = new THREE.Mesh(
+        new THREE.TextGeometry(toVerticalDate(new Date()), {
+          ...fontCommonParams,
+          font,
+          size: 14,
+        }).center(),
+        material
+      );
+      dateMesh.position.set(window.innerWidth / 2 - 55, 100, 1);
+      scene.add(dateMesh);
+
+      const musicInfoMesh = new THREE.Mesh(
+        new THREE.TextGeometry("楽曲", {
+          ...fontCommonParams,
+          font,
+          size: 14,
+        }).center(),
+        material
+      );
+      musicInfoMesh.position.set(window.innerWidth / 2 - 55, 0, 1);
+      scene.add(musicInfoMesh);
+
       const play = () => {
         renderer.render(scene, camera);
         requestAnimationFrame(play);
@@ -139,13 +179,9 @@ export const setupThree = (): Promise<ThreeWrapper> =>
           ...state.textMeshes,
           [text]: new THREE.Mesh(
             new THREE.TextGeometry(text.replace(/(.{10})/g, "$1\n"), {
+              ...fontCommonParams,
               font,
               size: 48,
-              height: 0,
-              bevelEnabled: true,
-              bevelThickness: 0,
-              bevelSize: 1,
-              bevelSegments: 1,
             }).center(),
             material
           ),
@@ -182,10 +218,42 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
       };
+      const lastSongMeshes = new Array<THREE.Mesh>();
+      const showSongInfo = ({ title, artist }: SongInfo) => {
+        // Remove cached song info meshes
+        lastSongMeshes.forEach((mesh) => {
+          scene.remove(mesh);
+        });
+        lastSongMeshes.splice(0, lastSongMeshes.length);
+
+        // Add song info meshes
+        const params = {
+          ...fontCommonParams,
+          font,
+          size: 13,
+        };
+        const titleMesh = new THREE.Mesh(
+          new THREE.TextGeometry(toVertical(title), params),
+          material
+        );
+        const artistMesh = new THREE.Mesh(
+          new THREE.TextGeometry(toVertical(artist), params),
+          material
+        );
+        titleMesh.position.set(window.innerWidth / 2 - 50, -40, 1);
+        artistMesh.position.set(window.innerWidth / 2 - 70, -40, 1);
+        scene.add(titleMesh);
+        scene.add(artistMesh);
+
+        // Cache meshes
+        lastSongMeshes.push(titleMesh);
+        lastSongMeshes.push(artistMesh);
+      };
       resolve({
         scene,
         font,
         play,
+        showSongInfo,
         addTextMesh,
         resetTextMesh,
         showTextMeshToScene,
