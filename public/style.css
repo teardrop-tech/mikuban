@@ -4,12 +4,6 @@
   --color-loading-background: rgba(0, 0, 0, 0.3);
   --color-eraser: linear-gradient(0deg, #0c023a 80%, #a06b1c 80%);
   --color-white: white;
-  --color-miku: #54c5a3;
-  --color-rin: #eeaa00;
-  --color-ren: #ffee77;
-  --color-luka: #c5548d;
-  --color-kaito: #545cc5;
-  --color-meiko: #c55454;
 }
 
 html,
@@ -37,65 +31,29 @@ body {
   height: 100%;
 }
 
-#eraser {
-  width: 80px;
-  height: 36px;
-  position: fixed;
+#chalks {
+  width: 100vw;
   bottom: 12px;
-  left: calc(50% - 380px);
-  border-radius: 4px 4px 8px 8px;
-  background: var(--color-eraser);
+  position: fixed;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  padding: 0 24px;
 }
 
 #chalks > button {
-  width: 80px;
+  width: 10%;
+  max-width: 80px;
   height: 16px;
-  position: fixed;
-  bottom: 12px;
   border: 1px groove inherit;
   border-radius: 4px;
+  margin-right: 8px;
 }
 
-#chalks > #chalk-white {
-  left: calc(50% - 280px);
-  background-color: var(--color-white);
-  border-color: var(--color-white);
-}
-
-#chalks > #chalk-miku {
-  left: calc(50% - 180px);
-  background-color: var(--color-miku);
-  border-color: var(--color-miku);
-}
-
-#chalks > #chalk-rin {
-  left: calc(50% - 80px);
-  background-color: var(--color-rin);
-  border-color: var(--color-rin);
-}
-
-#chalks > #chalk-ren {
-  left: 51.25%;
-  background-color: var(--color-ren);
-  border-color: var(--color-ren);
-}
-
-#chalks > #chalk-luka {
-  left: calc(51.25% + 100px);
-  background-color: var(--color-luka);
-  border-color: var(--color-luka);
-}
-
-#chalks > #chalk-kaito {
-  left: calc(51.25% + 200px);
-  background-color: var(--color-kaito);
-  border-color: var(--color-kaito);
-}
-
-#chalks > #chalk-meiko {
-  left: calc(51.25% + 300px);
-  background-color: var(--color-meiko);
-  border-color: var(--color-meiko);
+#chalks > #eraser {
+  height: 36px;
+  border-radius: 4px 4px 8px 8px;
+  background: var(--color-eraser);
 }
 
 /** Tweakpane */
