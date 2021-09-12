@@ -1,5 +1,7 @@
 # mm2021 [![GitHub Actions Status](https://github.com/teardrop-tech/mm2021/actions/workflows/build.yml/badge.svg)](https://github.com/teardrop-tech/mm2021/actions) [![Netlify Status](https://api.netlify.com/api/v1/badges/501e0435-c297-4091-99d2-f60045463b61/deploy-status)](https://app.netlify.com/sites/teardrop-mm2021/deploys)
 
+<https://teardrop-mm2021.netlify.app>
+
 ### Setup
 
 ```shell
