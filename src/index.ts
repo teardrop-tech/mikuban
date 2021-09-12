@@ -5,6 +5,11 @@ import { theme } from "./definition";
 import ControlPanel from "./control-panel";
 
 window.onload = async () => {
+  if (innerHeight > innerWidth) {
+    alert("デバイスを横画面にしてください (＞人＜;)\nPlease use landscape 🙏");
+    return;
+  }
+
   if (process.env.DEBUG) {
     safetyGetElementById("debug").style.display = "block";
   }
@@ -74,3 +79,11 @@ const initChalkButtons = () => {
     throw new Error(`Unknown button id: ${button.id}`);
   });
 };
+
+addEventListener(
+  "orientationchange",
+  () => {
+    location.reload();
+  },
+  false
+);
