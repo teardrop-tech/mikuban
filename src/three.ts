@@ -83,10 +83,10 @@ export const setupThree = (): Promise<ThreeWrapper> =>
     let meshMaterial = new MeshLineMaterial({
       useMap: 1,
       map: paintTexture,
-      color: 0xffffff, // TODO: Change color
+      color: 0xffffff,
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
       sizeAttenuation: 1,
-      lineWidth: 12, // TODO: Change bold
+      lineWidth: 12,
       repeat: new THREE.Vector2(3, 1),
     });
     meshMaterial.depthTest = false;
@@ -94,33 +94,10 @@ export const setupThree = (): Promise<ThreeWrapper> =>
 
     const raycaster = new THREE.Raycaster();
     const points = new Array<number>();
-    let moved = false;
-    // TODO: Fire touch event
-    window.addEventListener("pointermove", (event: PointerEvent) => {
-      const mouse = new THREE.Vector2(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-      );
-      if (moved) {
-        raycaster.setFromCamera(mouse, camera);
-        // calculate objects intersecting the picking ray
-        const intersects = raycaster.intersectObjects(scene.children);
-        if (intersects?.length > 0) {
-          const point = intersects[0]?.point;
-          if (point) {
-            points.push(point.x); // X
-            points.push(point.y); // Y
-            points.push(1); // Z
-            meshLine.setPoints(points);
-          }
-        }
-      }
-    });
-    window.addEventListener("pointerdown", () => {
-      moved = true;
-    });
-    window.addEventListener("pointerup", () => {
-      moved = false;
+
+    let isTouching = false;
+
+    const generateMeshLine = () => {
       points.splice(0, points.length);
       meshLine = new MeshLine();
       meshMaterial = new MeshLineMaterial({
@@ -135,6 +112,72 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       meshMaterial.depthTest = false;
       meshMaterial.transparent = true;
       scene.add(new THREE.Mesh(meshLine.geometry, meshMaterial));
+    };
+
+    window.addEventListener("mousedown", () => {
+      isTouching = true;
+      generateMeshLine();
+    });
+    window.addEventListener("mouseup", () => {
+      isTouching = false;
+    });
+    window.addEventListener("mouseout", () => {
+      isTouching = false;
+    });
+    window.addEventListener("mousemove", (event) => {
+      const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      );
+      if (isTouching) {
+        raycaster.setFromCamera(mouse, camera);
+        // calculate objects intersecting the picking ray
+        const intersects = raycaster.intersectObjects(scene.children);
+        if (intersects?.length > 0) {
+          const point = intersects[0]?.point;
+          if (point) {
+            points.push(point.x); // X
+            points.push(point.y); // Y
+            points.push(1); // Z
+            meshLine.setPoints(points);
+          }
+        }
+      }
+    });
+
+    window.addEventListener("touchstart", () => {
+      isTouching = true;
+      generateMeshLine();
+    });
+    window.addEventListener("touchend", () => {
+      isTouching = false;
+    });
+    window.addEventListener("touchmove", (event) => {
+      const touchList: TouchList = event.changedTouches;
+      // ファーストタッチのみ処理
+      const touch: Touch | undefined = touchList[0];
+
+      if (!touch) return;
+
+      const touchX = (touch.clientX / window.innerWidth) * 2 - 1;
+      const touchY = -(touch.clientY / window.innerHeight) * 2 + 1;
+
+      const mouse = new THREE.Vector2(touchX, touchY);
+
+      if (isTouching) {
+        raycaster.setFromCamera(mouse, camera);
+        // calculate objects intersecting the picking ray
+        const intersects = raycaster.intersectObjects(scene.children, false);
+        if (intersects?.length > 0) {
+          const point = intersects[0]?.point;
+          if (point) {
+            points.push(point.x); // X
+            points.push(point.y); // Y
+            points.push(1); // Z
+            meshLine.setPoints(points);
+          }
+        }
+      }
     });
 
     const state = initState;
