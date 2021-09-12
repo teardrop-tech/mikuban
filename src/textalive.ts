@@ -3,6 +3,7 @@ import { Player, Ease, IPlayerApp } from "textalive-app-api";
 import { ThreeWrapper } from "./three";
 import ControlPanel from "./control-panel";
 import { safetyGetElementById } from "./utils";
+import { musicList } from "./definition";
 
 export const initializePlayer = ({
   three,
@@ -83,7 +84,7 @@ export const handlePlayer = ({
   handleOnAppReady: () => (app: IPlayerApp) => {
     if (!app.songUrl) {
       // デフォルト選択曲
-      player.createFromSongUrl("https://piapro.jp/t/FDb1/20210213190029");
+      player.createFromSongUrl(musicList[0]?.value);
     }
   },
   handleOnVideoReady:
@@ -97,6 +98,10 @@ export const handlePlayer = ({
       const { song } = player.data;
       elements.artist.textContent = song.artist.name;
       elements.song.textContent = song.name;
+      three.showSongInfo({
+        title: song.name,
+        artist: song.artist.name,
+      });
 
       three.resetTextMesh();
       const { firstPhrase, firstWord } = player.video;

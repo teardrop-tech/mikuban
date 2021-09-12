@@ -1,24 +1,40 @@
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 import { MeshLine, MeshLineMaterial } from "meshline";
+import { toVertical, toVerticalDate } from "./utils";
+import { Font } from "three";
 import ControlPanel from "./control-panel";
 
+interface SongInfo {
+  title: string;
+  artist: string;
+}
+
 interface State {
-  textMeshes: Record<string, THREE.Mesh>;
+  textMap: Record<string, string>;
   lastText: string;
+  lastMesh: THREE.Mesh | null;
   textLineMeshes: Array<THREE.Mesh>;
 }
 
 const initState: State = {
-  textMeshes: {},
+  textMap: {},
   lastText: "",
+  lastMesh: null,
   textLineMeshes: [],
 };
 
+const fontCommonParams = {
+  height: 0,
+  bevelEnabled: true,
+  bevelThickness: 0,
+  bevelSize: 1,
+  bevelSegments: 1,
+};
+
 export interface ThreeWrapper {
-  scene: THREE.Scene;
-  font: THREE.Font;
   play: () => void;
+  showSongInfo: (info: SongInfo) => void;
   addTextMesh: (text: string) => void;
   resetTextMesh: () => void;
   showTextMeshToScene: (text: string) => void;
@@ -186,56 +202,81 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       }
     });
 
+    let font: Font;
     const loader = new TTFLoader();
     loader.load("TanukiMagic.ttf", (json: unknown) => {
-      const font = new THREE.FontLoader().parse(json);
+      font = new THREE.FontLoader().parse(json);
+
+      const dateMesh = new THREE.Mesh(
+        new THREE.TextGeometry(toVerticalDate(new Date()), {
+          ...fontCommonParams,
+          font,
+          size: 14,
+        }).center(),
+        material
+      );
+      dateMesh.position.set(window.innerWidth / 2 - 55, 100, 1);
+      scene.add(dateMesh);
+
+      const musicInfoMesh = new THREE.Mesh(
+        new THREE.TextGeometry("楽曲", {
+          ...fontCommonParams,
+          font,
+          size: 14,
+        }).center(),
+        material
+      );
+      musicInfoMesh.position.set(window.innerWidth / 2 - 55, 0, 1);
+      scene.add(musicInfoMesh);
+
       const play = () => {
         renderer.render(scene, camera);
         requestAnimationFrame(play);
       };
       const addTextMesh = (text: string) => {
-        state.textMeshes = {
-          ...state.textMeshes,
-          [text]: new THREE.Mesh(
-            new THREE.TextGeometry(text.replace(/(.{10})/g, "$1\n"), {
-              font,
-              size: 48,
-              height: 0,
-              bevelEnabled: true,
-              bevelThickness: 0,
-              bevelSize: 1,
-              bevelSegments: 1,
-            }).center(),
-            material
-          ),
+        state.textMap = {
+          ...state.textMap,
+          [text]: text.replace(/(.{10})/g, "$1\n"),
         };
       };
       const showTextMeshToScene = (text: string) => {
         if (state.lastText === text) {
           return;
         }
-        const mesh = state.textMeshes[text];
-        if (!mesh) {
+        const phrase = state.textMap[text];
+        if (!phrase) {
           return;
         }
         removeTextMeshFromScene();
+        const mesh = new THREE.Mesh(
+          new THREE.TextGeometry(phrase, {
+            ...fontCommonParams,
+            font,
+            size: 48,
+          }).center(),
+          material
+        );
         scene.add(mesh);
         state.lastText = text;
+        state.lastMesh = mesh;
       };
       const resetTextMesh = () => {
-        state.textMeshes = initState.textMeshes;
+        state.textMap = initState.textMap;
         state.lastText = initState.lastText;
       };
       const removeTextMeshFromScene = () => {
         if (!state.lastText) {
           return;
         }
-        const mesh = state.textMeshes[state.lastText];
-        if (!mesh) {
+        const text = state.textMap[state.lastText];
+        if (!text) {
           return;
         }
-        scene.remove(mesh);
+        if (state.lastMesh) {
+          scene.remove(state.lastMesh);
+        }
         state.lastText = "";
+        state.lastMesh = null;
       };
       const removeAllTextMeshLineFromScene = () => {
         state.textLineMeshes.forEach((mesh) => {
@@ -248,10 +289,40 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
       };
+      const lastSongMeshes = new Array<THREE.Mesh>();
+      const showSongInfo = ({ title, artist }: SongInfo) => {
+        // Remove cached song info meshes
+        lastSongMeshes.forEach((mesh) => {
+          scene.remove(mesh);
+        });
+        lastSongMeshes.splice(0, lastSongMeshes.length);
+
+        // Add song info meshes
+        const params = {
+          ...fontCommonParams,
+          font,
+          size: 13,
+        };
+        const titleMesh = new THREE.Mesh(
+          new THREE.TextGeometry(toVertical(title), params),
+          material
+        );
+        const artistMesh = new THREE.Mesh(
+          new THREE.TextGeometry(toVertical(artist), params),
+          material
+        );
+        titleMesh.position.set(window.innerWidth / 2 - 50, -40, 1);
+        artistMesh.position.set(window.innerWidth / 2 - 70, -40, 1);
+        scene.add(titleMesh);
+        scene.add(artistMesh);
+
+        // Cache meshes
+        lastSongMeshes.push(titleMesh);
+        lastSongMeshes.push(artistMesh);
+      };
       resolve({
-        scene,
-        font,
         play,
+        showSongInfo,
         addTextMesh,
         resetTextMesh,
         showTextMeshToScene,
