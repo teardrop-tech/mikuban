@@ -6,11 +6,13 @@ import ControlPanel from "./control-panel";
 interface State {
   textMeshes: Record<string, THREE.Mesh>;
   lastText: string;
+  textLineMeshes: Array<THREE.Mesh>;
 }
 
 const initState: State = {
   textMeshes: {},
   lastText: "",
+  textLineMeshes: [],
 };
 
 export interface ThreeWrapper {
@@ -21,6 +23,7 @@ export interface ThreeWrapper {
   resetTextMesh: () => void;
   showTextMeshToScene: (text: string) => void;
   removeTextMeshFromScene: () => void;
+  removeAllTextMeshLineFromScene: () => void;
 
   /**
    * 画面のリサイズ
@@ -94,6 +97,7 @@ export const setupThree = (): Promise<ThreeWrapper> =>
 
     const raycaster = new THREE.Raycaster();
     const points = new Array<number>();
+    const state = initState;
 
     let isTouching = false;
 
@@ -111,7 +115,9 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       });
       meshMaterial.depthTest = false;
       meshMaterial.transparent = true;
-      scene.add(new THREE.Mesh(meshLine.geometry, meshMaterial));
+      const mesh = new THREE.Mesh(meshLine.geometry, meshMaterial);
+      state.textLineMeshes.push(mesh);
+      scene.add(mesh);
     };
 
     window.addEventListener("mousedown", () => {
@@ -180,8 +186,6 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       }
     });
 
-    const state = initState;
-
     const loader = new TTFLoader();
     loader.load("TanukiMagic.ttf", (json: unknown) => {
       const font = new THREE.FontLoader().parse(json);
@@ -233,6 +237,13 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         scene.remove(mesh);
         state.lastText = "";
       };
+      const removeAllTextMeshLineFromScene = () => {
+        state.textLineMeshes.forEach((mesh) => {
+          scene.remove(mesh);
+        });
+        state.textLineMeshes.splice(0);
+      };
+      ControlPanel.setClearCallback(removeAllTextMeshLineFromScene);
       const resizeDisplay = (width: number, height: number) => {
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -245,6 +256,7 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         resetTextMesh,
         showTextMeshToScene,
         removeTextMeshFromScene,
+        removeAllTextMeshLineFromScene,
         resizeDisplay,
       });
     });

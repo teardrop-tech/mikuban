@@ -22,6 +22,8 @@ class ControlPanel {
   private prevLineColor: string;
   /** 消しゴムモードのパラメータ */
   private eraserParam: { EraserMode: boolean };
+  /** 黒板クリア処理 */
+  private clearCallback!: () => void;
 
   /**
    * コンストラクタ
@@ -154,7 +156,7 @@ class ControlPanel {
         title: "Clear Black Board",
       })
       .on("click", () => {
-        Paint.clearCanvas();
+        if (this.clearCallback) this.clearCallback();
       });
   }
 
@@ -203,6 +205,14 @@ class ControlPanel {
     this.eraserParam.EraserMode = !this.eraserParam.EraserMode;
     // UIの反映
     this.pane?.refresh();
+  }
+
+  /**
+   * 黒板クリアボタン押下時のコールバックの設定
+   * @param {void} callback コールバック
+   */
+  public setClearCallback(callback: () => void): void {
+    this.clearCallback = callback;
   }
 }
 export default new ControlPanel();
