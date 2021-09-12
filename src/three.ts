@@ -10,13 +10,15 @@ interface SongInfo {
 }
 
 interface State {
-  textMeshes: Record<string, THREE.Mesh>;
+  textMap: Record<string, string>;
   lastText: string;
+  lastMesh: THREE.Mesh | null;
 }
 
 const initState: State = {
-  textMeshes: {},
+  textMap: {},
   lastText: "",
+  lastMesh: null,
 };
 
 const fontCommonParams = {
@@ -28,8 +30,6 @@ const fontCommonParams = {
 };
 
 export interface ThreeWrapper {
-  scene: THREE.Scene;
-  font: THREE.Font;
   play: () => void;
   showSongInfo: (info: SongInfo) => void;
   addTextMesh: (text: string) => void;
@@ -175,44 +175,49 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         requestAnimationFrame(play);
       };
       const addTextMesh = (text: string) => {
-        state.textMeshes = {
-          ...state.textMeshes,
-          [text]: new THREE.Mesh(
-            new THREE.TextGeometry(text.replace(/(.{10})/g, "$1\n"), {
-              ...fontCommonParams,
-              font,
-              size: 48,
-            }).center(),
-            material
-          ),
+        state.textMap = {
+          ...state.textMap,
+          [text]: text.replace(/(.{10})/g, "$1\n"),
         };
       };
       const showTextMeshToScene = (text: string) => {
         if (state.lastText === text) {
           return;
         }
-        const mesh = state.textMeshes[text];
-        if (!mesh) {
+        const phrase = state.textMap[text];
+        if (!phrase) {
           return;
         }
         removeTextMeshFromScene();
+        const mesh = new THREE.Mesh(
+          new THREE.TextGeometry(phrase, {
+            ...fontCommonParams,
+            font,
+            size: 48,
+          }).center(),
+          material
+        );
         scene.add(mesh);
         state.lastText = text;
+        state.lastMesh = mesh;
       };
       const resetTextMesh = () => {
-        state.textMeshes = initState.textMeshes;
+        state.textMap = initState.textMap;
         state.lastText = initState.lastText;
       };
       const removeTextMeshFromScene = () => {
         if (!state.lastText) {
           return;
         }
-        const mesh = state.textMeshes[state.lastText];
-        if (!mesh) {
+        const text = state.textMap[state.lastText];
+        if (!text) {
           return;
         }
-        scene.remove(mesh);
+        if (state.lastMesh) {
+          scene.remove(state.lastMesh);
+        }
         state.lastText = "";
+        state.lastMesh = null;
       };
       const resizeDisplay = (width: number, height: number) => {
         renderer.setSize(width, height);
@@ -250,8 +255,6 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         lastSongMeshes.push(artistMesh);
       };
       resolve({
-        scene,
-        font,
         play,
         showSongInfo,
         addTextMesh,
