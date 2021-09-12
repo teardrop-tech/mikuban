@@ -18,10 +18,10 @@ class ControlPanel {
   private lineWidth;
   /** カラーピッカーのパラメータ */
   private colorParam: { Color: string };
+  /** 前回の線の色 */
+  private prevLineColor: string;
   /** 消しゴムモードのパラメータ */
-  private eraserParam = {
-    EraserMode: false,
-  };
+  private eraserParam: { EraserMode: boolean };
 
   /**
    * コンストラクタ
@@ -35,6 +35,8 @@ class ControlPanel {
     this.changeMusicFlg = false;
     this.lineWidth = paintSettings.lineBold;
     this.colorParam = { Color: theme.color.miku };
+    this.prevLineColor = this.colorParam.Color;
+    this.eraserParam = { EraserMode: false };
   }
 
   /**
@@ -128,9 +130,11 @@ class ControlPanel {
 
     tab.pages[1]?.addInput(this.colorParam, "Color").on("change", (ev) => {
       if (this.eraserParam.EraserMode) {
-        Paint.setPrevLineColor(ev.value);
+        this.prevLineColor = ev.value;
+        this.colorParam.Color = theme.color.blackboard;
       } else {
-        Paint.setLineColor(ev.value);
+        this.prevLineColor = this.colorParam.Color;
+        this.colorParam.Color = ev.value;
       }
     });
 
@@ -138,9 +142,10 @@ class ControlPanel {
       ?.addInput(this.eraserParam, "EraserMode")
       .on("change", (ev) => {
         if (ev.value) {
-          Paint.setLineColor(theme.color.blackboard);
+          this.prevLineColor = this.colorParam.Color;
+          this.colorParam.Color = theme.color.blackboard;
         } else {
-          Paint.changePrevColor();
+          this.colorParam.Color = this.prevLineColor;
         }
       });
 
