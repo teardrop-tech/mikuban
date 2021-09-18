@@ -3,6 +3,7 @@ import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 import { MeshLine, MeshLineMaterial } from "meshline";
 import { toVertical, toVerticalDate } from "./utils";
 import { Font } from "three";
+import { theme, paintSettings } from "./definition";
 
 interface SongInfo {
   title: string;
@@ -13,12 +14,14 @@ interface State {
   textMap: Record<string, string>;
   lastText: string;
   lastMesh: THREE.Mesh | null;
+  textLineMeshes: Array<THREE.Mesh>;
 }
 
 const initState: State = {
   textMap: {},
   lastText: "",
   lastMesh: null,
+  textLineMeshes: [],
 };
 
 const fontCommonParams = {
@@ -29,6 +32,18 @@ const fontCommonParams = {
   bevelSegments: 1,
 };
 
+interface LineInfo {
+  width: number;
+  color: string;
+  prevColor: string;
+}
+
+const lineInfo: LineInfo = {
+  width: paintSettings.lineWidth,
+  color: theme.color.miku,
+  prevColor: theme.color.miku,
+};
+
 export interface ThreeWrapper {
   play: () => void;
   showSongInfo: (info: SongInfo) => void;
@@ -36,6 +51,7 @@ export interface ThreeWrapper {
   resetTextMesh: () => void;
   showTextMeshToScene: (text: string) => void;
   removeTextMeshFromScene: () => void;
+  removeAllTextMeshLineFromScene: () => void;
 
   /**
    * 画面のリサイズ
@@ -43,6 +59,26 @@ export interface ThreeWrapper {
    * @param {number} height 画面の高さ
    */
   resizeDisplay: (width: number, height: number) => void;
+
+  /**
+   * ペイントの線の太さの設定
+   * @param {number} width 線の太さ
+   */
+  setLineWidth: (width: number) => void;
+  /**
+   * ペイントの線の色を設定
+   * @param {string} color 色
+   */
+  setLineColor: (color: string) => void;
+  /**
+   * ペイントの前回の線の色を設定
+   * @param {string} color 色
+   */
+  setPrevLineColor: (color: string) => void;
+  /**
+   * 前回の線の色に変更
+   */
+  changePrevLineColor: () => void;
 }
 
 export const setupThree = (): Promise<ThreeWrapper> =>
@@ -95,13 +131,13 @@ export const setupThree = (): Promise<ThreeWrapper> =>
     paintTexture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
     let meshLine = new MeshLine();
-    const meshMaterial = new MeshLineMaterial({
+    let meshMaterial = new MeshLineMaterial({
       useMap: 1,
       map: paintTexture,
-      color: 0xffffff, // TODO: Change color
+      color: 0xffffff,
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
       sizeAttenuation: 1,
-      lineWidth: 12, // TODO: Change bold
+      lineWidth: 12,
       repeat: new THREE.Vector2(3, 1),
     });
     meshMaterial.depthTest = false;
@@ -109,14 +145,45 @@ export const setupThree = (): Promise<ThreeWrapper> =>
 
     const raycaster = new THREE.Raycaster();
     const points = new Array<number>();
-    let moved = false;
-    // TODO: Fire touch event
-    window.addEventListener("pointermove", (event: PointerEvent) => {
+    const state = initState;
+
+    let isTouching = false;
+
+    const generateMeshLine = () => {
+      points.splice(0, points.length);
+      meshLine = new MeshLine();
+      meshMaterial = new MeshLineMaterial({
+        useMap: 1,
+        map: paintTexture,
+        color: lineInfo.color,
+        resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+        sizeAttenuation: 1,
+        lineWidth: lineInfo.width,
+        repeat: new THREE.Vector2(3, 1),
+      });
+      meshMaterial.depthTest = false;
+      meshMaterial.transparent = true;
+      const mesh = new THREE.Mesh(meshLine.geometry, meshMaterial);
+      state.textLineMeshes.push(mesh);
+      scene.add(mesh);
+    };
+
+    window.addEventListener("mousedown", () => {
+      isTouching = true;
+      generateMeshLine();
+    });
+    window.addEventListener("mouseup", () => {
+      isTouching = false;
+    });
+    window.addEventListener("mouseout", () => {
+      isTouching = false;
+    });
+    window.addEventListener("mousemove", (event) => {
       const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1
       );
-      if (moved) {
+      if (isTouching) {
         raycaster.setFromCamera(mouse, camera);
         // calculate objects intersecting the picking ray
         const intersects = raycaster.intersectObjects(scene.children);
@@ -131,17 +198,41 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         }
       }
     });
-    window.addEventListener("pointerdown", () => {
-      moved = true;
-    });
-    window.addEventListener("pointerup", () => {
-      moved = false;
-      points.splice(0, points.length);
-      meshLine = new MeshLine();
-      scene.add(new THREE.Mesh(meshLine.geometry, meshMaterial));
-    });
 
-    const state = initState;
+    window.addEventListener("touchstart", () => {
+      isTouching = true;
+      generateMeshLine();
+    });
+    window.addEventListener("touchend", () => {
+      isTouching = false;
+    });
+    window.addEventListener("touchmove", (event) => {
+      const touchList: TouchList = event.changedTouches;
+      // ファーストタッチのみ処理
+      const touch: Touch | undefined = touchList[0];
+
+      if (!touch) return;
+
+      const touchX = (touch.clientX / window.innerWidth) * 2 - 1;
+      const touchY = -(touch.clientY / window.innerHeight) * 2 + 1;
+
+      const mouse = new THREE.Vector2(touchX, touchY);
+
+      if (isTouching) {
+        raycaster.setFromCamera(mouse, camera);
+        // calculate objects intersecting the picking ray
+        const intersects = raycaster.intersectObjects(scene.children, false);
+        if (intersects?.length > 0) {
+          const point = intersects[0]?.point;
+          if (point) {
+            points.push(point.x); // X
+            points.push(point.y); // Y
+            points.push(1); // Z
+            meshLine.setPoints(points);
+          }
+        }
+      }
+    });
 
     let font: Font;
     const loader = new TTFLoader();
@@ -219,9 +310,28 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         state.lastText = "";
         state.lastMesh = null;
       };
+      const removeAllTextMeshLineFromScene = () => {
+        state.textLineMeshes.forEach((mesh) => {
+          scene.remove(mesh);
+        });
+        state.textLineMeshes.splice(0);
+      };
       const resizeDisplay = (width: number, height: number) => {
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
+      };
+      const setLineWidth = (width: number) => {
+        lineInfo.width = width;
+      };
+      const setLineColor = (color: string) => {
+        lineInfo.prevColor = lineInfo.color;
+        lineInfo.color = color;
+      };
+      const setPrevLineColor = (color: string) => {
+        lineInfo.prevColor = color;
+      };
+      const changePrevLineColor = () => {
+        lineInfo.color = lineInfo.prevColor;
       };
       const lastSongMeshes = new Array<THREE.Mesh>();
       const showSongInfo = ({ title, artist }: SongInfo) => {
@@ -261,7 +371,12 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         resetTextMesh,
         showTextMeshToScene,
         removeTextMeshFromScene,
+        removeAllTextMeshLineFromScene,
         resizeDisplay,
+        setLineWidth,
+        setLineColor,
+        setPrevLineColor,
+        changePrevLineColor,
       });
     });
   });
