@@ -1,8 +1,11 @@
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 import { MeshLine, MeshLineMaterial } from "meshline";
+import { IPhrase, Timer } from "textalive-app-api";
+
 import { toVertical, toVerticalDate } from "./utils";
-import { Font } from "three";
+import createLyricsManager, { LyricsManager } from "./lyrics/manager";
+import createLyricsRenderer from "./lyrics/renderer";
 
 interface SongInfo {
   title: string;
@@ -13,6 +16,7 @@ interface State {
   textMap: Record<string, string>;
   lastText: string;
   lastMesh: THREE.Mesh | null;
+  lyricsManager?: LyricsManager;
 }
 
 const initState: State = {
@@ -28,14 +32,18 @@ const fontCommonParams = {
   bevelSize: 1,
   bevelSegments: 1,
 };
-
 export interface ThreeWrapper {
   play: () => void;
   showSongInfo: (info: SongInfo) => void;
-  addTextMesh: (text: string) => void;
-  resetTextMesh: () => void;
-  showTextMeshToScene: (text: string) => void;
-  removeTextMeshFromScene: () => void;
+
+  onOnVideoReady: (
+    phrases: IPhrase[],
+    timer: Timer,
+    elements: {
+      phrase: Element;
+      word: Element;
+    }
+  ) => void;
 
   /**
    * 画面のリサイズ
@@ -143,7 +151,7 @@ export const setupThree = (): Promise<ThreeWrapper> =>
 
     const state = initState;
 
-    let font: Font;
+    let font: THREE.Font;
     const loader = new TTFLoader();
     loader.load("TanukiMagic.ttf", (json: unknown) => {
       font = new THREE.FontLoader().parse(json);
@@ -171,54 +179,12 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       scene.add(musicInfoMesh);
 
       const play = () => {
+        state.lyricsManager?.update();
+
         renderer.render(scene, camera);
         requestAnimationFrame(play);
       };
-      const addTextMesh = (text: string) => {
-        state.textMap = {
-          ...state.textMap,
-          [text]: text.replace(/(.{10})/g, "$1\n"),
-        };
-      };
-      const showTextMeshToScene = (text: string) => {
-        if (state.lastText === text) {
-          return;
-        }
-        const phrase = state.textMap[text];
-        if (!phrase) {
-          return;
-        }
-        removeTextMeshFromScene();
-        const mesh = new THREE.Mesh(
-          new THREE.TextGeometry(phrase, {
-            ...fontCommonParams,
-            font,
-            size: 48,
-          }).center(),
-          material
-        );
-        scene.add(mesh);
-        state.lastText = text;
-        state.lastMesh = mesh;
-      };
-      const resetTextMesh = () => {
-        state.textMap = initState.textMap;
-        state.lastText = initState.lastText;
-      };
-      const removeTextMeshFromScene = () => {
-        if (!state.lastText) {
-          return;
-        }
-        const text = state.textMap[state.lastText];
-        if (!text) {
-          return;
-        }
-        if (state.lastMesh) {
-          scene.remove(state.lastMesh);
-        }
-        state.lastText = "";
-        state.lastMesh = null;
-      };
+
       const resizeDisplay = (width: number, height: number) => {
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -254,14 +220,29 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         lastSongMeshes.push(titleMesh);
         lastSongMeshes.push(artistMesh);
       };
+
+      const onOnVideoReady = (
+        phrases: IPhrase[],
+        timer: Timer,
+        elements: { phrase: Element; word: Element }
+      ) => {
+        state.lyricsManager = createLyricsManager({
+          timer,
+          phrases,
+          elements,
+          renderer: createLyricsRenderer({
+            font,
+            scene,
+            material,
+          }),
+        });
+      };
+
       resolve({
         play,
         showSongInfo,
-        addTextMesh,
-        resetTextMesh,
-        showTextMeshToScene,
-        removeTextMeshFromScene,
         resizeDisplay,
+        onOnVideoReady,
       });
     });
   });

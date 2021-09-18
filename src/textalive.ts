@@ -103,26 +103,7 @@ export const handlePlayer = ({
         artist: song.artist.name,
       });
 
-      three.resetTextMesh();
-      const { firstPhrase, firstWord } = player.video;
-
-      for (let phrase = firstPhrase; phrase; phrase = phrase.next) {
-        three.addTextMesh(phrase.text);
-        phrase.animate = (now, u) => {
-          if (u.contains(now)) {
-            elements.phrase.textContent = u.text;
-            three.showTextMeshToScene(u.text);
-          }
-        };
-      }
-
-      for (let word = firstWord; word; word = word.next) {
-        word.animate = (now, u) => {
-          if (u.contains(now)) {
-            elements.word.textContent = u.text;
-          }
-        };
-      }
+      three.onOnVideoReady(player.video.phrases, player.timer, elements);
     },
   handleOnTimerReady: (elements: { spinner: Element }) => () => {
     // ローディング表示の解除
@@ -166,6 +147,5 @@ export const handlePlayer = ({
   handleOnStop: (elements: { phrase: Element; word: Element }) => () => {
     elements.phrase.textContent = "-";
     elements.word.textContent = "-";
-    three.removeTextMeshFromScene();
   },
 });
