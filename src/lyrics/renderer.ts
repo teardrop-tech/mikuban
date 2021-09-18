@@ -22,6 +22,7 @@ const isASCII = (char: string) => char.charCodeAt(0) < 128;
 
 const wordWidth = (word: IWord) =>
   word.children.reduce(
+    // ASCII 文字を半角、それ以外を全角（半角2つ分）として扱う
     (result, char) => result + (isASCII(char.text) ? 1 : 2),
     0
   );
@@ -36,6 +37,7 @@ const fitPhrase = (phrase: IPhrase): string => {
         throw Error(`The word is too long: ${word.text}`);
       }
 
+      // 1列の文字幅がはみ出た場合は改行させる
       const stickedOut = result.width + width > MAX_PHRASE_WIDTH;
       if (stickedOut) {
         return {

@@ -38,7 +38,8 @@ export default ({
       ? getObject(phrases).at(timer.position)
       : undefined;
 
-    if (state.currentPhrase !== phrase) {
+    const phraseChanged = state.currentPhrase !== phrase;
+    if (phraseChanged) {
       elements.phrase.textContent = phrase?.text ?? "-";
       renderer.renderPhrase(phrase);
       state.currentPhrase = phrase;
@@ -53,7 +54,8 @@ export default ({
         ? getObject(phrase.children).at(timer.position)
         : undefined;
 
-    if (state.currentWord !== word) {
+    const wordChanged = state.currentWord !== word;
+    if (wordChanged) {
       elements.word.textContent = word?.text ?? "-";
       state.currentWord = word;
     }
