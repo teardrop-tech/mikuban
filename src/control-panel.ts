@@ -2,8 +2,8 @@ import { Player } from "textalive-app-api";
 import { Pane } from "tweakpane";
 import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 
+import { ThreeWrapper } from "./three";
 import { safetyGetElementById } from "./utils";
-import Paint from "./paint";
 import { theme, paintSettings, musicList } from "./definition";
 
 /**
@@ -14,16 +14,10 @@ class ControlPanel {
   private pane: Pane;
   /** 曲変更フラグ */
   private changeMusicFlg: boolean;
-  /** ペイントの線の太さ */
-  private lineWidth;
   /** カラーピッカーのパラメータ */
   private colorParam: { Color: string };
-  /** 前回の線の色 */
-  private prevLineColor: string;
   /** 消しゴムモードのパラメータ */
   private eraserParam: { EraserMode: boolean };
-  /** 黒板クリア処理 */
-  private clearCallback!: () => void;
 
   /**
    * コンストラクタ
@@ -31,21 +25,20 @@ class ControlPanel {
   constructor() {
     // コントロールパネルの生成
     this.pane = new Pane({
-      title: "Control Panel",
+      title: "Menu",
       expanded: false,
     });
     this.changeMusicFlg = false;
-    this.lineWidth = paintSettings.lineBold;
     this.colorParam = { Color: theme.color.miku };
-    this.prevLineColor = this.colorParam.Color;
     this.eraserParam = { EraserMode: false };
   }
 
   /**
    * 初期化
    * @param {Player} player TextAlive Player
+   * @param {ThreeWrapper} threeWrapper ThreeWrapper
    */
-  public init(player: Player): void {
+  public init(player: Player, threeWrapper: ThreeWrapper): void {
     this.pane.registerPlugin(EssentialsPlugin);
 
     // タブの追加
@@ -62,6 +55,7 @@ class ControlPanel {
         view: "list",
         options: musicList,
         value: musicList[0]?.value,
+        label: "Songs",
       })
       .on("change", (ev) => {
         // 曲の停止
@@ -119,24 +113,26 @@ class ControlPanel {
       });
 
     tab.pages[1]
-      ?.addBlade({
-        view: "slider",
-        label: "Line Weight",
-        min: 0.5,
-        max: 100,
-        value: Paint.getLineBold(),
-      })
+      ?.addInput(
+        {
+          LineWidth: paintSettings.lineWidth,
+        },
+        "LineWidth",
+        {
+          step: 0.5,
+          min: 0.5,
+          max: 100,
+        }
+      )
       .on("change", (ev) => {
-        this.lineWidth = ev.value;
+        threeWrapper.setLineWidth(ev.value);
       });
 
     tab.pages[1]?.addInput(this.colorParam, "Color").on("change", (ev) => {
       if (this.eraserParam.EraserMode) {
-        this.prevLineColor = ev.value;
-        this.colorParam.Color = theme.color.blackboard;
+        threeWrapper.setPrevLineColor(ev.value);
       } else {
-        this.prevLineColor = this.colorParam.Color;
-        this.colorParam.Color = ev.value;
+        threeWrapper.setLineColor(ev.value);
       }
     });
 
@@ -144,10 +140,9 @@ class ControlPanel {
       ?.addInput(this.eraserParam, "EraserMode")
       .on("change", (ev) => {
         if (ev.value) {
-          this.prevLineColor = this.colorParam.Color;
-          this.colorParam.Color = theme.color.blackboard;
+          threeWrapper.setLineColor(theme.color.blackboard);
         } else {
-          this.colorParam.Color = this.prevLineColor;
+          threeWrapper.setLineColor(this.colorParam.Color);
         }
       });
 
@@ -156,7 +151,7 @@ class ControlPanel {
         title: "Clear Black Board",
       })
       .on("click", () => {
-        if (this.clearCallback) this.clearCallback();
+        threeWrapper.removeAllTextMeshLineFromScene();
       });
   }
 
@@ -177,18 +172,6 @@ class ControlPanel {
   }
 
   /**
-   * ペイントの線の太さを取得
-   * @returns {number} this.lineWidth 線の太さ
-   */
-  public getLineWidth = (): number => this.lineWidth;
-
-  /**
-   * ペイントの線の色を取得
-   * @returns {number} this.colorParam.Color 線の色
-   */
-  public getLineColor = (): string => this.colorParam.Color;
-
-  /**
    * カラーピッカーの色変更
    * @param {string} color カラーコード
    */
@@ -205,14 +188,6 @@ class ControlPanel {
     this.eraserParam.EraserMode = !this.eraserParam.EraserMode;
     // UIの反映
     this.pane?.refresh();
-  }
-
-  /**
-   * 黒板クリアボタン押下時のコールバックの設定
-   * @param {void} callback コールバック
-   */
-  public setClearCallback(callback: () => void): void {
-    this.clearCallback = callback;
   }
 }
 export default new ControlPanel();

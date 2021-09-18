@@ -12,7 +12,7 @@ export const theme = {
 } as const;
 
 export const paintSettings = {
-  lineBold: 10,
+  lineWidth: 10,
   drawOffset: {
     x: 25,
     y: 25,

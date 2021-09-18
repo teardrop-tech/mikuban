@@ -3,7 +3,7 @@ import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 import { MeshLine, MeshLineMaterial } from "meshline";
 import { toVertical, toVerticalDate } from "./utils";
 import { Font } from "three";
-import ControlPanel from "./control-panel";
+import { theme, paintSettings } from "./definition";
 
 interface SongInfo {
   title: string;
@@ -32,6 +32,18 @@ const fontCommonParams = {
   bevelSegments: 1,
 };
 
+interface LineInfo {
+  width: number;
+  color: string;
+  prevColor: string;
+}
+
+const lineInfo: LineInfo = {
+  width: paintSettings.lineWidth,
+  color: theme.color.miku,
+  prevColor: theme.color.miku,
+};
+
 export interface ThreeWrapper {
   play: () => void;
   showSongInfo: (info: SongInfo) => void;
@@ -47,6 +59,26 @@ export interface ThreeWrapper {
    * @param {number} height 画面の高さ
    */
   resizeDisplay: (width: number, height: number) => void;
+
+  /**
+   * ペイントの線の太さの設定
+   * @param {number} width 線の太さ
+   */
+  setLineWidth: (width: number) => void;
+  /**
+   * ペイントの線の色を設定
+   * @param {string} color 色
+   */
+  setLineColor: (color: string) => void;
+  /**
+   * ペイントの前回の線の色を設定
+   * @param {string} color 色
+   */
+  setPrevLineColor: (color: string) => void;
+  /**
+   * 前回の線の色に変更
+   */
+  changePrevLineColor: () => void;
 }
 
 export const setupThree = (): Promise<ThreeWrapper> =>
@@ -123,10 +155,10 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       meshMaterial = new MeshLineMaterial({
         useMap: 1,
         map: paintTexture,
-        color: ControlPanel.getLineColor(),
+        color: lineInfo.color,
         resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
         sizeAttenuation: 1,
-        lineWidth: ControlPanel.getLineWidth(),
+        lineWidth: lineInfo.width,
         repeat: new THREE.Vector2(3, 1),
       });
       meshMaterial.depthTest = false;
@@ -284,10 +316,22 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         });
         state.textLineMeshes.splice(0);
       };
-      ControlPanel.setClearCallback(removeAllTextMeshLineFromScene);
       const resizeDisplay = (width: number, height: number) => {
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
+      };
+      const setLineWidth = (width: number) => {
+        lineInfo.width = width;
+      };
+      const setLineColor = (color: string) => {
+        lineInfo.prevColor = lineInfo.color;
+        lineInfo.color = color;
+      };
+      const setPrevLineColor = (color: string) => {
+        lineInfo.prevColor = color;
+      };
+      const changePrevLineColor = () => {
+        lineInfo.color = lineInfo.prevColor;
       };
       const lastSongMeshes = new Array<THREE.Mesh>();
       const showSongInfo = ({ title, artist }: SongInfo) => {
@@ -329,6 +373,10 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         removeTextMeshFromScene,
         removeAllTextMeshLineFromScene,
         resizeDisplay,
+        setLineWidth,
+        setLineColor,
+        setPrevLineColor,
+        changePrevLineColor,
       });
     });
   });

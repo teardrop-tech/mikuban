@@ -25,7 +25,7 @@ window.onload = async () => {
   });
 
   // コントロールパネルの表示
-  ControlPanel.init(player);
+  ControlPanel.init(player, three);
 
   // チョーク&黒板消しボタンの初期化
   initChalkButtons();
