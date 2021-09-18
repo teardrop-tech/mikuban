@@ -13,17 +13,8 @@ interface SongInfo {
 }
 
 interface State {
-  textMap: Record<string, string>;
-  lastText: string;
-  lastMesh: THREE.Mesh | null;
   lyricsManager?: LyricsManager;
 }
-
-const initState: State = {
-  textMap: {},
-  lastText: "",
-  lastMesh: null,
-};
 
 const fontCommonParams = {
   height: 0,
@@ -149,7 +140,7 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       scene.add(new THREE.Mesh(meshLine.geometry, meshMaterial));
     });
 
-    const state = initState;
+    const state = {} as State;
 
     let font: THREE.Font;
     const loader = new TTFLoader();
