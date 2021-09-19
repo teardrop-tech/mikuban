@@ -151,7 +151,7 @@ class ControlPanel {
         title: "Clear Black Board",
       })
       .on("click", () => {
-        threeWrapper.removeAllTextMeshLineFromScene();
+        threeWrapper.clearPaintMesh();
       });
   }
 

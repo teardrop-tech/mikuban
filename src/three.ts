@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 import { MeshLine, MeshLineMaterial } from "meshline";
+
 import { toVertical, toVerticalDate } from "./utils";
-import { Font } from "three";
 import { theme, paintSettings } from "./definition";
 
 interface SongInfo {
@@ -11,17 +11,12 @@ interface SongInfo {
 }
 
 interface State {
-  textMap: Record<string, string>;
-  lastText: string;
-  lastMesh: THREE.Mesh | null;
-  textLineMeshes: Array<THREE.Mesh>;
+  font?: THREE.Font;
+  paintMeshes: Array<THREE.Mesh>;
 }
 
 const initState: State = {
-  textMap: {},
-  lastText: "",
-  lastMesh: null,
-  textLineMeshes: [],
+  paintMeshes: [],
 };
 
 const fontCommonParams = {
@@ -47,11 +42,6 @@ const lineInfo: LineInfo = {
 export interface ThreeWrapper {
   play: () => void;
   showSongInfo: (info: SongInfo) => void;
-  addTextMesh: (text: string) => void;
-  resetTextMesh: () => void;
-  showTextMeshToScene: (text: string) => void;
-  removeTextMeshFromScene: () => void;
-  removeAllTextMeshLineFromScene: () => void;
 
   /**
    * 画面のリサイズ
@@ -79,6 +69,16 @@ export interface ThreeWrapper {
    * 前回の線の色に変更
    */
   changePrevLineColor: () => void;
+  /**
+   * ペイントのクリア
+   */
+  clearPaintMesh: () => void;
+
+  getRenderer: () => {
+    scene: THREE.Scene;
+    font: THREE.Font;
+    material: THREE.Material | THREE.Material[];
+  };
 }
 
 export const setupThree = (): Promise<ThreeWrapper> =>
@@ -164,7 +164,7 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       meshMaterial.depthTest = false;
       meshMaterial.transparent = true;
       const mesh = new THREE.Mesh(meshLine.geometry, meshMaterial);
-      state.textLineMeshes.push(mesh);
+      state.paintMeshes.push(mesh);
       scene.add(mesh);
     };
 
@@ -234,10 +234,10 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       }
     });
 
-    let font: Font;
     const loader = new TTFLoader();
     loader.load("TanukiMagic.ttf", (json: unknown) => {
-      font = new THREE.FontLoader().parse(json);
+      const font = new THREE.FontLoader().parse(json);
+      state.font = font;
 
       const dateMesh = new THREE.Mesh(
         new THREE.TextGeometry(toVerticalDate(new Date()), {
@@ -265,57 +265,6 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         renderer.render(scene, camera);
         requestAnimationFrame(play);
       };
-      const addTextMesh = (text: string) => {
-        state.textMap = {
-          ...state.textMap,
-          [text]: text.replace(/(.{10})/g, "$1\n"),
-        };
-      };
-      const showTextMeshToScene = (text: string) => {
-        if (state.lastText === text) {
-          return;
-        }
-        const phrase = state.textMap[text];
-        if (!phrase) {
-          return;
-        }
-        removeTextMeshFromScene();
-        const mesh = new THREE.Mesh(
-          new THREE.TextGeometry(phrase, {
-            ...fontCommonParams,
-            font,
-            size: 48,
-          }).center(),
-          material
-        );
-        scene.add(mesh);
-        state.lastText = text;
-        state.lastMesh = mesh;
-      };
-      const resetTextMesh = () => {
-        state.textMap = initState.textMap;
-        state.lastText = initState.lastText;
-      };
-      const removeTextMeshFromScene = () => {
-        if (!state.lastText) {
-          return;
-        }
-        const text = state.textMap[state.lastText];
-        if (!text) {
-          return;
-        }
-        if (state.lastMesh) {
-          scene.remove(state.lastMesh);
-        }
-        state.lastText = "";
-        state.lastMesh = null;
-      };
-      const removeAllTextMeshLineFromScene = () => {
-        state.textLineMeshes.forEach((mesh) => {
-          scene.remove(mesh);
-        });
-        state.textLineMeshes.splice(0);
-      };
       const resizeDisplay = (width: number, height: number) => {
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -333,6 +282,13 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       const changePrevLineColor = () => {
         lineInfo.color = lineInfo.prevColor;
       };
+      const clearPaintMesh = () => {
+        state.paintMeshes.forEach((mesh) => {
+          scene.remove(mesh);
+        });
+        state.paintMeshes.splice(0);
+      };
+
       const lastSongMeshes = new Array<THREE.Mesh>();
       const showSongInfo = ({ title, artist }: SongInfo) => {
         // Remove cached song info meshes
@@ -364,19 +320,27 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         lastSongMeshes.push(titleMesh);
         lastSongMeshes.push(artistMesh);
       };
+
       resolve({
         play,
         showSongInfo,
-        addTextMesh,
-        resetTextMesh,
-        showTextMeshToScene,
-        removeTextMeshFromScene,
-        removeAllTextMeshLineFromScene,
         resizeDisplay,
         setLineWidth,
         setLineColor,
         setPrevLineColor,
         changePrevLineColor,
+        clearPaintMesh,
+        getRenderer: () => {
+          const { font } = state;
+          if (!font) {
+            throw Error("Font is undefined");
+          }
+          return {
+            font,
+            scene,
+            material,
+          };
+        },
       });
     });
   });
