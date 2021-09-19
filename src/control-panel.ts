@@ -187,9 +187,7 @@ class ControlPanel {
         title: "Tweet",
       })
       .on("click", () => {
-        const link = document.createElement("a");
-        link.href = twitter.twitterLinkWithHashtag;
-        link.click();
+        open(twitter.toURL());
       });
   }
 
