@@ -12,7 +12,7 @@ export interface LyricRenderer {
 interface Props {
   font: THREE.Font;
   scene: THREE.Scene;
-  material: THREE.Material[];
+  material: THREE.Material | THREE.Material[];
 }
 
 const MAX_PHRASE_WIDTH = 20;

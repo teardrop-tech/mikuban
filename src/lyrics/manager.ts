@@ -1,4 +1,4 @@
-import { IPhrase, ITextUnit, IWord, Timer } from "textalive-app-api";
+import { Player, IPhrase, ITextUnit, IWord } from "textalive-app-api";
 
 import { LyricRenderer } from "./renderer";
 
@@ -8,35 +8,30 @@ interface State {
 }
 
 interface Props {
+  player: Player;
   renderer: LyricRenderer;
-  timer: Timer;
   elements: {
     phrase: Element;
     word: Element;
   };
-  phrases: IPhrase[];
 }
 
 export interface LyricsManager {
-  update: () => void;
+  update: (position?: number) => void;
+  pause: () => void;
+  stop: () => void;
 }
 
 const getObject = <T extends ITextUnit>(units: T[]) => ({
   at: (time: number) => units.find((unit) => unit.contains(time)),
 });
 
-export default ({
-  timer,
-  phrases,
-  elements,
-  renderer,
-}: Props): LyricsManager => {
+export default ({ player, elements, renderer }: Props): LyricsManager => {
   const state = {} as State;
 
-  const updatePhrase = () => {
-    const phrase = timer.isPlaying
-      ? getObject(phrases).at(timer.position)
-      : undefined;
+  const updatePhrase = (position?: number) => {
+    const { phrases } = player.video;
+    const phrase = position ? getObject(phrases).at(position) : undefined;
 
     const phraseChanged = state.currentPhrase !== phrase;
     if (phraseChanged) {
@@ -48,12 +43,9 @@ export default ({
     return phrase;
   };
 
-  const updateWord = (phrase?: IPhrase) => {
+  const updateWord = (phrase?: IPhrase, position?: number) => {
     const word =
-      timer.isPlaying && phrase
-        ? getObject(phrase.children).at(timer.position)
-        : undefined;
-
+      phrase && position ? getObject(phrase.children).at(position) : undefined;
     const wordChanged = state.currentWord !== word;
     if (wordChanged) {
       elements.word.textContent = word?.text ?? "-";
@@ -61,10 +53,18 @@ export default ({
     }
   };
 
+  const clear = () => {
+    updatePhrase(-1);
+    updateWord(undefined, -1);
+  };
+
   return {
-    update: () => {
-      const phrase = updatePhrase();
-      updateWord(phrase);
+    update: (position) => {
+      console.log(position);
+      const phrase = updatePhrase(position);
+      updateWord(phrase, position);
     },
+    pause: clear,
+    stop: clear,
   };
 };

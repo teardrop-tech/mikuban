@@ -1,19 +1,12 @@
 import * as THREE from "three";
 import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
 import { MeshLine, MeshLineMaterial } from "meshline";
-import { IPhrase, Timer } from "textalive-app-api";
 
 import { toVertical, toVerticalDate } from "./utils";
-import createLyricsManager, { LyricsManager } from "./lyrics/manager";
-import createLyricsRenderer from "./lyrics/renderer";
 
 interface SongInfo {
   title: string;
   artist: string;
-}
-
-interface State {
-  lyricsManager?: LyricsManager;
 }
 
 const fontCommonParams = {
@@ -27,14 +20,11 @@ export interface ThreeWrapper {
   play: () => void;
   showSongInfo: (info: SongInfo) => void;
 
-  onOnVideoReady: (
-    phrases: IPhrase[],
-    timer: Timer,
-    elements: {
-      phrase: Element;
-      word: Element;
-    }
-  ) => void;
+  getRenderer: () => {
+    scene: THREE.Scene;
+    font: THREE.Font;
+    material: THREE.Material | THREE.Material[];
+  };
 
   /**
    * 画面のリサイズ
@@ -140,8 +130,6 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       scene.add(new THREE.Mesh(meshLine.geometry, meshMaterial));
     });
 
-    const state = {} as State;
-
     let font: THREE.Font;
     const loader = new TTFLoader();
     loader.load("TanukiMagic.ttf", (json: unknown) => {
@@ -170,8 +158,6 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       scene.add(musicInfoMesh);
 
       const play = () => {
-        state.lyricsManager?.update();
-
         renderer.render(scene, camera);
         requestAnimationFrame(play);
       };
@@ -212,28 +198,15 @@ export const setupThree = (): Promise<ThreeWrapper> =>
         lastSongMeshes.push(artistMesh);
       };
 
-      const onOnVideoReady = (
-        phrases: IPhrase[],
-        timer: Timer,
-        elements: { phrase: Element; word: Element }
-      ) => {
-        state.lyricsManager = createLyricsManager({
-          timer,
-          phrases,
-          elements,
-          renderer: createLyricsRenderer({
-            font,
-            scene,
-            material,
-          }),
-        });
-      };
-
       resolve({
         play,
         showSongInfo,
         resizeDisplay,
-        onOnVideoReady,
+        getRenderer: () => ({
+          font,
+          scene,
+          material,
+        }),
       });
     });
   });
