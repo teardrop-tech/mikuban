@@ -7,13 +7,13 @@ import createLyricsManager, { LyricsManager } from "./lyrics/manager";
 import createLyricsRenderer from "./lyrics/renderer";
 import createSideInfoRenderer, { SideInfoRenderer } from "./side-info/renderer";
 
-export const initializePlayer = ({
-  scene,
-  token,
-}: {
+interface Props {
   scene: THREE.Scene;
   token: string;
-}) => {
+  fontLoader: Promise<void>;
+}
+
+export const initializePlayer = ({ scene, token, fontLoader }: Props) => {
   const player = new Player({
     app: {
       token,
@@ -44,6 +44,7 @@ export const initializePlayer = ({
     handleOnMediaSeek,
   } = handlePlayer({
     player,
+    fontLoader,
   });
   const onAppReady = handleOnAppReady();
   const onVideoReady = handleOnVideoReady(songInfoRenderer, {
@@ -81,7 +82,13 @@ export const initializePlayer = ({
   return player;
 };
 
-const handlePlayer = ({ player }: { player: Player }) => ({
+const handlePlayer = ({
+  player,
+  fontLoader,
+}: {
+  player: Player;
+  fontLoader: Promise<void>;
+}) => ({
   handleOnAppReady: () => (app: IPlayerApp) => {
     if (!app.songUrl) {
       // デフォルト選択曲
@@ -103,8 +110,9 @@ const handlePlayer = ({ player }: { player: Player }) => ({
         artist: song.artist.name,
       });
     },
-  handleOnTimerReady: (elements: { spinner: Element }) => () => {
+  handleOnTimerReady: (elements: { spinner: Element }) => async () => {
     // ローディング表示の解除
+    await fontLoader;
     elements.spinner.classList.add("loaded");
     // コントロールパネルから曲変更時は自動再生
     // https://developer.chrome.com/blog/autoplay/

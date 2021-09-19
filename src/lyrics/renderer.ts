@@ -4,6 +4,8 @@ import * as THREE from "three";
 import { Text } from "troika-three-text";
 import { IPhrase, IWord } from "textalive-app-api";
 
+import { font as ChalkFont } from "../font-loader";
+
 export interface LyricRenderer {
   renderPhrase: (phrase?: IPhrase) => void;
 }
@@ -71,7 +73,7 @@ export default ({ scene }: Props): LyricRenderer => {
   });
   const text = new Text();
   // https://github.com/protectwise/troika/issues/88
-  text.font = "YuseiMagic-Regular.otf";
+  text.font = ChalkFont;
   text.fontSize = window.innerWidth * 0.08;
   text.textAlign = "center";
   text.anchorX = "center";

@@ -3,6 +3,7 @@ import { initializePlayer } from "./textalive";
 import { isThemeColorId, safetyGetElementById } from "./utils";
 import { theme } from "./definition";
 import ControlPanel from "./control-panel";
+import preloadFont from "./font-loader";
 
 window.onload = () => {
   if (innerHeight > innerWidth) {
@@ -19,9 +20,12 @@ window.onload = () => {
   // 画面リサイズ時のコールバックの設定
   window.addEventListener("resize", resizeDisplay(three));
 
+  const fontLoader = preloadFont();
+
   const player = initializePlayer({
     scene: three.scene,
     token: process.env.TOKEN ?? "",
+    fontLoader,
   });
 
   // コントロールパネルの表示

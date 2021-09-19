@@ -3,6 +3,8 @@ import * as THREE from "three";
 // @ts-ignore
 import { Text } from "troika-three-text";
 
+import { font as ChalkFont } from "../font-loader";
+
 interface SongInfo {
   title: string;
   artist: string;
@@ -19,7 +21,7 @@ interface Props {
 const createText = (material: THREE.Material) => {
   const text = new Text();
   // https://github.com/protectwise/troika/issues/88
-  text.font = "YuseiMagic-Regular.otf";
+  text.font = ChalkFont;
   text.textAlign = "center";
   text.anchorX = "center";
   text.anchorY = "bottom";
