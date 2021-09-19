@@ -2,9 +2,9 @@ import { Player } from "textalive-app-api";
 import { Pane } from "tweakpane";
 import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 
+import { ThreeWrapper } from "./three";
 import { safetyGetElementById } from "./utils";
-import Paint from "./paint";
-import { theme, musicList } from "./definition";
+import { theme, paintSettings, musicList } from "./definition";
 
 /**
  * コントロールパネル
@@ -15,13 +15,9 @@ class ControlPanel {
   /** 曲変更フラグ */
   private changeMusicFlg: boolean;
   /** カラーピッカーのパラメータ */
-  private colorParam = {
-    Color: Paint.getLineColor(),
-  };
+  private colorParam: { Color: string };
   /** 消しゴムモードのパラメータ */
-  private eraserParam = {
-    EraserMode: false,
-  };
+  private eraserParam: { EraserMode: boolean };
 
   /**
    * コンストラクタ
@@ -29,17 +25,20 @@ class ControlPanel {
   constructor() {
     // コントロールパネルの生成
     this.pane = new Pane({
-      title: "Control Panel",
+      title: "Menu",
       expanded: false,
     });
     this.changeMusicFlg = false;
+    this.colorParam = { Color: theme.color.miku };
+    this.eraserParam = { EraserMode: false };
   }
 
   /**
    * 初期化
    * @param {Player} player TextAlive Player
+   * @param {ThreeWrapper} threeWrapper ThreeWrapper
    */
-  public init(player: Player): void {
+  public init(player: Player, threeWrapper: ThreeWrapper): void {
     this.pane.registerPlugin(EssentialsPlugin);
 
     // タブの追加
@@ -56,6 +55,7 @@ class ControlPanel {
         view: "list",
         options: musicList,
         value: musicList[0]?.value,
+        label: "Songs",
       })
       .on("change", (ev) => {
         // 曲の停止
@@ -112,24 +112,27 @@ class ControlPanel {
         player.volume = Math.round(ev.value);
       });
 
-    /** ペイント関連 */
     tab.pages[1]
-      ?.addBlade({
-        view: "slider",
-        label: "Line Weight",
-        min: 0.5,
-        max: 100,
-        value: Paint.getLineBold(),
-      })
+      ?.addInput(
+        {
+          LineWidth: paintSettings.lineWidth,
+        },
+        "LineWidth",
+        {
+          step: 0.5,
+          min: 0.5,
+          max: 100,
+        }
+      )
       .on("change", (ev) => {
-        Paint.setLineBold(ev.value);
+        threeWrapper.setLineWidth(ev.value);
       });
 
     tab.pages[1]?.addInput(this.colorParam, "Color").on("change", (ev) => {
       if (this.eraserParam.EraserMode) {
-        Paint.setPrevLineColor(ev.value);
+        threeWrapper.setPrevLineColor(ev.value);
       } else {
-        Paint.setLineColor(ev.value);
+        threeWrapper.setLineColor(ev.value);
       }
     });
 
@@ -137,9 +140,9 @@ class ControlPanel {
       ?.addInput(this.eraserParam, "EraserMode")
       .on("change", (ev) => {
         if (ev.value) {
-          Paint.setLineColor(theme.color.blackboard);
+          threeWrapper.setLineColor(theme.color.blackboard);
         } else {
-          Paint.changePrevColor();
+          threeWrapper.setLineColor(this.colorParam.Color);
         }
       });
 
@@ -148,7 +151,7 @@ class ControlPanel {
         title: "Clear Black Board",
       })
       .on("click", () => {
-        Paint.clearCanvas();
+        threeWrapper.clearPaintMesh();
       });
   }
 

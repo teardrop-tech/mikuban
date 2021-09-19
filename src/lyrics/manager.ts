@@ -60,7 +60,6 @@ export default ({ player, elements, renderer }: Props): LyricsManager => {
 
   return {
     update: (position) => {
-      console.log(position);
       const phrase = updatePhrase(position);
       updateWord(phrase, position);
     },

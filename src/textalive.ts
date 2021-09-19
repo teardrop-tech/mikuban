@@ -138,7 +138,9 @@ const handlePlayer = ({
 
       manager.update(position);
     },
-  handleOnPlay: () => () => console.log("▶️ Start playing"),
+  handleOnPlay: () => () => {
+    /** */
+  },
   handleOnPause: (manager: LyricsManager) => () => {
     manager.pause();
   },
