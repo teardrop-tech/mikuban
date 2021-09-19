@@ -12,12 +12,18 @@ import { theme, paintSettings, musicList } from "./definition";
 class ControlPanel {
   /** コントロールパネル本体 */
   private pane: Pane;
+  /** textalive */
+  private player: Player | null;
   /** 曲変更フラグ */
   private changeMusicFlg: boolean;
   /** カラーピッカーのパラメータ */
   private colorParam: { Color: string };
   /** 消しゴムモードのパラメータ */
   private eraserParam: { EraserMode: boolean };
+  /** シークバーのパラメータ */
+  private seekParam: { Time: number };
+  /** シーク中かどうか */
+  private isSeeking: boolean;
 
   /**
    * コンストラクタ
@@ -28,9 +34,12 @@ class ControlPanel {
       title: "Menu",
       expanded: false,
     });
+    this.player = null;
     this.changeMusicFlg = false;
     this.colorParam = { Color: theme.color.miku };
     this.eraserParam = { EraserMode: false };
+    this.seekParam = { Time: 0 };
+    this.isSeeking = false;
   }
 
   /**
@@ -39,6 +48,8 @@ class ControlPanel {
    * @param {ThreeWrapper} threeWrapper ThreeWrapper
    */
   public init(player: Player, threeWrapper: ThreeWrapper): void {
+    this.player = player;
+
     this.pane.registerPlugin(EssentialsPlugin);
 
     // タブの追加
@@ -188,6 +199,53 @@ class ControlPanel {
     this.eraserParam.EraserMode = !this.eraserParam.EraserMode;
     // UIの反映
     this.pane?.refresh();
+  }
+
+  /**
+   * シークバーの初期化
+   * @param {number} length 楽曲の再生時間[s]
+   */
+  public initSeekBar(length: number): void {
+    this.isSeeking = false;
+
+    const tab = this.pane.children[0];
+    const musicPage = tab?.pages[0];
+
+    let seekBar = musicPage.children[5];
+
+    if (seekBar) {
+      tab?.pages[0]?.remove(seekBar);
+    }
+
+    seekBar = tab?.pages[0]
+      ?.addInput(this.seekParam, "Time", {
+        min: 0,
+        max: length,
+      })
+      .on("change", (ev: any) => {
+        if (ev.last) {
+          if (this.isSeeking) {
+            this.player?.requestMediaSeek(ev.value * 1000);
+            setTimeout(() => {
+              this.isSeeking = false;
+            }, 100);
+          }
+        } else {
+          this.isSeeking = true;
+          this.pane.refresh();
+        }
+      });
+  }
+
+  /**
+   * シークバーの更新
+   * @param {number} position 現在の再生位置[ms]
+   */
+  public updateSeekBar(position: number): void {
+    if (this.isSeeking) return;
+    const second = position / 1000;
+    this.seekParam.Time = Number(second.toFixed(2));
+    this.pane.refresh();
   }
 }
 export default new ControlPanel();

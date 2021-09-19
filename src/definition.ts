@@ -1,9 +1,9 @@
 export const theme = {
   color: {
     miku: "#54c5a3",
-    rin: "#c5b054",
-    ren: "#ffee77",
-    luka: "#c5548d",
+    rin: "#ffd98c",
+    ren: "#fcf5a7",
+    luka: "#c8a5a5",
     kaito: "#545cc5",
     meiko: "#c55454",
     blackboard: "#3d5347",

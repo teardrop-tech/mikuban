@@ -28,6 +28,7 @@ export const initializePlayer = ({
     handleOnPlay,
     handleOnPause,
     handleOnStop,
+    handleOnMediaSeek,
   } = handlePlayer({
     player,
     three,
@@ -61,6 +62,7 @@ export const initializePlayer = ({
     phrase: safetyGetElementById("phrase"),
     word: safetyGetElementById("word"),
   });
+  const onMediaSeek = handleOnMediaSeek();
   player.addListener({
     onAppReady,
     onVideoReady,
@@ -69,6 +71,7 @@ export const initializePlayer = ({
     onPlay,
     onPause,
     onStop,
+    onMediaSeek,
   });
 
   return player;
@@ -96,6 +99,10 @@ export const handlePlayer = ({
     }) =>
     () => {
       const { song } = player.data;
+
+      // シークバーの設定
+      ControlPanel.initSeekBar(player.data.song.length);
+
       elements.artist.textContent = song.artist.name;
       elements.song.textContent = song.name;
       three.showSongInfo({
@@ -167,5 +174,8 @@ export const handlePlayer = ({
     elements.phrase.textContent = "-";
     elements.word.textContent = "-";
     three.removeTextMeshFromScene();
+  },
+  handleOnMediaSeek: () => (position: number) => {
+    ControlPanel.updateSeekBar(position);
   },
 });
