@@ -3,7 +3,7 @@ import { Pane } from "tweakpane";
 import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 
 import { ThreeWrapper } from "./three";
-import { safetyGetElementById } from "./utils";
+import { safetyGetElementById, downloadDisplayCapture } from "./utils";
 import { theme, paintSettings, musicList } from "./definition";
 
 /**
@@ -157,12 +157,26 @@ class ControlPanel {
         }
       });
 
+    // セパレータの追加
+    tab.pages[1]?.addSeparator();
+
     tab.pages[1]
       ?.addButton({
         title: "Clear Black Board",
       })
       .on("click", () => {
         threeWrapper.clearPaintMesh();
+      });
+
+    // セパレータの追加
+    tab.pages[1]?.addSeparator();
+
+    tab.pages[1]
+      ?.addButton({
+        title: "Screenshot",
+      })
+      .on("click", () => {
+        downloadDisplayCapture();
       });
   }
 

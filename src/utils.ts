@@ -1,4 +1,5 @@
 import { theme } from "./definition";
+import html2canvas from "html2canvas";
 
 export const safetyGetElementById = (id: string): HTMLElement => {
   const element = document.getElementById(id);
@@ -38,4 +39,17 @@ export const toVerticalDate = (cal: Date) => {
     }
   })(cal.getDay());
   return [month, "月", date, "日", day, "曜", "日"].join("\n");
+};
+
+/**
+ * 画面全体の画像をダウンロード
+ */
+export const downloadDisplayCapture = (): void => {
+  const element = document?.querySelector("#capture") as HTMLElement;
+  html2canvas(element).then((canvas) => {
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL();
+    link.download = "miku_ban";
+    link.click();
+  });
 };

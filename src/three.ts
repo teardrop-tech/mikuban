@@ -84,7 +84,10 @@ export interface ThreeWrapper {
 export const setupThree = (): Promise<ThreeWrapper> =>
   new Promise((resolve) => {
     const canvas = document.querySelector("#three") as HTMLCanvasElement;
-    const renderer = new THREE.WebGLRenderer({ canvas });
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      preserveDrawingBuffer: true,
+    });
 
     const { innerWidth, innerHeight } = window;
 

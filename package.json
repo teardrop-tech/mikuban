@@ -29,6 +29,7 @@
   "dependencies": {
     "@tweakpane/core": "^1.0.6",
     "@tweakpane/plugin-essentials": "^0.1.2",
+    "html2canvas": "^1.3.2",
     "meshline": "^2.0.3",
     "opentype.js": "^1.3.3",
     "textalive-app-api": "^0.3.0",
