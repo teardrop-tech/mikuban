@@ -18,7 +18,8 @@ interface Props {
 
 const createText = (material: THREE.Material) => {
   const text = new Text();
-  text.font = "YuseiMagic-Regular.ttf";
+  // https://github.com/protectwise/troika/issues/88
+  text.font = "YuseiMagic-Regular.otf";
   text.textAlign = "center";
   text.anchorX = "center";
   text.anchorY = "bottom";

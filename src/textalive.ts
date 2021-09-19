@@ -1,6 +1,5 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
 
-import { ThreeWrapper } from "./three";
 import ControlPanel from "./control-panel";
 import { safetyGetElementById } from "./utils";
 import { musicList } from "./definition";

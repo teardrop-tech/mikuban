@@ -70,7 +70,8 @@ export default ({ scene }: Props): LyricRenderer => {
     transparent: true,
   });
   const text = new Text();
-  text.font = "YuseiMagic-Regular.ttf";
+  // https://github.com/protectwise/troika/issues/88
+  text.font = "YuseiMagic-Regular.otf";
   text.fontSize = window.innerWidth * 0.08;
   text.textAlign = "center";
   text.anchorX = "center";
