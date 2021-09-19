@@ -4,6 +4,8 @@ import { ThreeWrapper } from "./three";
 import ControlPanel from "./control-panel";
 import { safetyGetElementById } from "./utils";
 import { musicList } from "./definition";
+import createLyricsManager, { LyricsManager } from "./lyrics/manager";
+import createLyricsRenderer from "./lyrics/renderer";
 
 export const initializePlayer = ({
   three,
@@ -18,6 +20,15 @@ export const initializePlayer = ({
     },
     valenceArousalEnabled: true,
     vocalAmplitudeEnabled: true,
+  });
+
+  const lyricsManager = createLyricsManager({
+    player,
+    renderer: createLyricsRenderer(three.getRenderer()),
+    elements: {
+      phrase: safetyGetElementById("phrase"),
+      word: safetyGetElementById("word"),
+    },
   });
 
   const {
@@ -37,13 +48,11 @@ export const initializePlayer = ({
   const onVideoReady = handleOnVideoReady({
     song: safetyGetElementById("song"),
     artist: safetyGetElementById("artist"),
-    phrase: safetyGetElementById("phrase"),
-    word: safetyGetElementById("word"),
   });
   const onTimerReady = handleOnTimerReady({
     spinner: safetyGetElementById("loading"),
   });
-  const onTimeUpdate = handleOnTimeUpdate({
+  const onTimeUpdate = handleOnTimeUpdate(lyricsManager, {
     beats: safetyGetElementById("beats"),
     chords: safetyGetElementById("chords"),
     va: {
@@ -54,14 +63,8 @@ export const initializePlayer = ({
     amplitude: safetyGetElementById("amplitude"),
   });
   const onPlay = handleOnPlay();
-  const onPause = handleOnPause({
-    phrase: safetyGetElementById("phrase"),
-    word: safetyGetElementById("word"),
-  });
-  const onStop = handleOnStop({
-    phrase: safetyGetElementById("phrase"),
-    word: safetyGetElementById("word"),
-  });
+  const onPause = handleOnPause(lyricsManager);
+  const onStop = handleOnStop(lyricsManager);
   const onMediaSeek = handleOnMediaSeek();
   player.addListener({
     onAppReady,
@@ -77,7 +80,7 @@ export const initializePlayer = ({
   return player;
 };
 
-export const handlePlayer = ({
+const handlePlayer = ({
   player,
   three,
 }: {
@@ -90,47 +93,16 @@ export const handlePlayer = ({
       player.createFromSongUrl(musicList[0]?.value);
     }
   },
-  handleOnVideoReady:
-    (elements: {
-      song: Element;
-      artist: Element;
-      phrase: Element;
-      word: Element;
-    }) =>
-    () => {
-      const { song } = player.data;
-
-      // シークバーの設定
-      ControlPanel.initSeekBar(player.data.song.length);
-
-      elements.artist.textContent = song.artist.name;
-      elements.song.textContent = song.name;
-      three.showSongInfo({
-        title: song.name,
-        artist: song.artist.name,
-      });
-
-      three.resetTextMesh();
-      const { firstPhrase, firstWord } = player.video;
-
-      for (let phrase = firstPhrase; phrase; phrase = phrase.next) {
-        three.addTextMesh(phrase.text);
-        phrase.animate = (now, u) => {
-          if (u.contains(now)) {
-            elements.phrase.textContent = u.text;
-            three.showTextMeshToScene(u.text);
-          }
-        };
-      }
-
-      for (let word = firstWord; word; word = word.next) {
-        word.animate = (now, u) => {
-          if (u.contains(now)) {
-            elements.word.textContent = u.text;
-          }
-        };
-      }
-    },
+  handleOnVideoReady: (elements: { song: Element; artist: Element }) => () => {
+    const { song } = player.data;
+    elements.artist.textContent = song.artist.name;
+    elements.song.textContent = song.name;
+    ControlPanel.initSeekBar(song.length);
+    three.showSongInfo({
+      title: song.name,
+      artist: song.artist.name,
+    });
+  },
   handleOnTimerReady: (elements: { spinner: Element }) => () => {
     // ローディング表示の解除
     elements.spinner.classList.add("loaded");
@@ -142,16 +114,19 @@ export const handlePlayer = ({
     }
   },
   handleOnTimeUpdate:
-    (elements: {
-      beats: Element;
-      chords: Element;
-      va: {
-        valence: Element;
-        arousal: Element;
-        result: Element;
-      };
-      amplitude: Element;
-    }) =>
+    (
+      manager: LyricsManager,
+      elements: {
+        beats: Element;
+        chords: Element;
+        va: {
+          valence: Element;
+          arousal: Element;
+          result: Element;
+        };
+        amplitude: Element;
+      }
+    ) =>
     (position: number) => {
       const beat = player.findBeat(position);
       const progress = Math.ceil(Ease.circIn(beat.progress(position)) * 100);
@@ -164,16 +139,17 @@ export const handlePlayer = ({
       elements.va.result.textContent = (va.v / va.a).toString();
       const amplitude = player.getVocalAmplitude(position);
       elements.amplitude.textContent = amplitude.toString();
+
+      manager.update(position);
     },
-  handleOnPlay: () => () => console.log("▶️ Start playing"),
-  handleOnPause: (elements: { phrase: Element; word: Element }) => () => {
-    elements.phrase.textContent = "-";
-    elements.word.textContent = "-";
+  handleOnPlay: () => () => {
+    /** */
   },
-  handleOnStop: (elements: { phrase: Element; word: Element }) => () => {
-    elements.phrase.textContent = "-";
-    elements.word.textContent = "-";
-    three.removeTextMeshFromScene();
+  handleOnPause: (manager: LyricsManager) => () => {
+    manager.pause();
+  },
+  handleOnStop: (manager: LyricsManager) => () => {
+    manager.stop();
   },
   handleOnMediaSeek: () => (position: number) => {
     ControlPanel.updateSeekBar(position);
