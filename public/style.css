@@ -6,6 +6,16 @@
   --color-white: white;
 }
 
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 html,
 body {
   margin: 0;
@@ -20,6 +30,8 @@ body {
 }
 
 #three {
+  border: 20px var(--color-blackboard-border);
+  border-style: ridge;
   display: block;
 }
 
@@ -27,8 +39,6 @@ body {
   width: 100vw;
   height: 100vh;
   position: relative;
-  outline: 20px ridge var(--color-blackboard-border);
-  outline-offset: -20px;
 }
 
 #layer-wrap > canvas {

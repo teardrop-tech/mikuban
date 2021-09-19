@@ -13,10 +13,6 @@ export const theme = {
 
 export const paintSettings = {
   lineWidth: 10,
-  drawOffset: {
-    x: 25,
-    y: 25,
-  },
 } as const;
 
 export const musicList = [
@@ -45,3 +41,12 @@ export const musicList = [
     value: "https://piapro.jp/t/N--x/20210204215604",
   },
 ] as const;
+
+export const twitter = {
+  twitterLinkWithHashtag:
+    "https://twitter.com/intent/tweet?text=%23初音ミク %23マジカルミライ2021%0a%23mm2021procon %23みくばん",
+} as const;
+
+// 免責事項(TODO: ローカライズ)
+export const disclaimer =
+  "スクリーンショットをダウンロードしますか？\n当サイト、またはコンテンツのご利用により、万一、ご利用者様に何らかの不都合や損害が発生したとしても、当サークルは何らの責任を負うものではありません。\nスクリーンショットをご使用の際は、ご注意いただきますようお願い申し上げます。";
