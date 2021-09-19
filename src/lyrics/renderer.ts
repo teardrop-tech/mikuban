@@ -1,18 +1,17 @@
 import * as THREE from "three";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { Text } from "troika-three-text";
 import { IPhrase, IWord } from "textalive-app-api";
 
-interface State {
-  phraseMesh?: THREE.Mesh;
-}
+import { font as ChalkFont } from "../font-loader";
 
 export interface LyricRenderer {
   renderPhrase: (phrase?: IPhrase) => void;
 }
 
 interface Props {
-  font: THREE.Font;
   scene: THREE.Scene;
-  material: THREE.Material | THREE.Material[];
 }
 
 const MAX_PHRASE_WIDTH = 20;
@@ -27,7 +26,10 @@ const wordWidth = (word: IWord) =>
     0
   );
 
-const fitPhrase = (phrase: IPhrase): string => {
+const fitPhrase = (phrase?: IPhrase): string => {
+  if (!phrase) {
+    return "";
+  }
   const { text } = phrase.children.reduce(
     (result, word) => {
       const width = wordWidth(word);
@@ -60,36 +62,27 @@ const fitPhrase = (phrase: IPhrase): string => {
   return text;
 };
 
-export default ({ font, scene, material }: Props): LyricRenderer => {
-  const state = {} as State;
+export default ({ scene }: Props): LyricRenderer => {
+  const texture = new THREE.TextureLoader().load("texture.png");
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  const textureScale = window.innerWidth * 0.005;
+  texture.repeat.set(textureScale, textureScale);
+  const material = new THREE.MeshStandardMaterial({
+    map: texture,
+    transparent: true,
+  });
+  const text = new Text();
+  // https://github.com/protectwise/troika/issues/88
+  text.font = ChalkFont;
+  text.fontSize = window.innerWidth * 0.08;
+  text.textAlign = "center";
+  text.anchorX = "center";
+  text.anchorY = "middle";
+  text.material = material;
+  text.color = 0xffffff;
+  scene.add(text);
 
   return {
-    renderPhrase: (phrase) => {
-      if (state.phraseMesh) {
-        scene.remove(state.phraseMesh);
-      }
-
-      if (!phrase) {
-        state.phraseMesh = undefined;
-        return;
-      }
-
-      const text = fitPhrase(phrase);
-      const mesh = new THREE.Mesh(
-        new THREE.TextGeometry(text, {
-          font,
-          size: 40,
-          height: 0,
-          bevelEnabled: true,
-          bevelThickness: 0,
-          bevelSize: 1,
-          bevelSegments: 1,
-        }).center(),
-        material
-      );
-      mesh.scale.setScalar(window.innerWidth / 700);
-      scene.add(mesh);
-      state.phraseMesh = mesh;
-    },
+    renderPhrase: (phrase) => (text.text = fitPhrase(phrase)),
   };
 };

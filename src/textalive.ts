@@ -1,19 +1,19 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
 
-import { ThreeWrapper } from "./three";
 import ControlPanel from "./control-panel";
 import { safetyGetElementById } from "./utils";
 import { musicList } from "./definition";
 import createLyricsManager, { LyricsManager } from "./lyrics/manager";
 import createLyricsRenderer from "./lyrics/renderer";
+import createSideInfoRenderer, { SideInfoRenderer } from "./side-info/renderer";
 
-export const initializePlayer = ({
-  three,
-  token,
-}: {
-  three: ThreeWrapper;
+interface Props {
+  scene: THREE.Scene;
   token: string;
-}) => {
+  fontLoader: Promise<void>;
+}
+
+export const initializePlayer = ({ scene, token, fontLoader }: Props) => {
   const player = new Player({
     app: {
       token,
@@ -24,12 +24,14 @@ export const initializePlayer = ({
 
   const lyricsManager = createLyricsManager({
     player,
-    renderer: createLyricsRenderer(three.getRenderer()),
+    renderer: createLyricsRenderer({ scene }),
     elements: {
       phrase: safetyGetElementById("phrase"),
       word: safetyGetElementById("word"),
     },
   });
+
+  const songInfoRenderer = createSideInfoRenderer({ scene });
 
   const {
     handleOnAppReady,
@@ -42,10 +44,10 @@ export const initializePlayer = ({
     handleOnMediaSeek,
   } = handlePlayer({
     player,
-    three,
+    fontLoader,
   });
   const onAppReady = handleOnAppReady();
-  const onVideoReady = handleOnVideoReady({
+  const onVideoReady = handleOnVideoReady(songInfoRenderer, {
     song: safetyGetElementById("song"),
     artist: safetyGetElementById("artist"),
   });
@@ -82,10 +84,10 @@ export const initializePlayer = ({
 
 const handlePlayer = ({
   player,
-  three,
+  fontLoader,
 }: {
   player: Player;
-  three: ThreeWrapper;
+  fontLoader: Promise<void>;
 }) => ({
   handleOnAppReady: () => (app: IPlayerApp) => {
     if (!app.songUrl) {
@@ -93,18 +95,24 @@ const handlePlayer = ({
       player.createFromSongUrl(musicList[0]?.value);
     }
   },
-  handleOnVideoReady: (elements: { song: Element; artist: Element }) => () => {
-    const { song } = player.data;
-    elements.artist.textContent = song.artist.name;
-    elements.song.textContent = song.name;
-    ControlPanel.initSeekBar(song.length);
-    three.showSongInfo({
-      title: song.name,
-      artist: song.artist.name,
-    });
-  },
-  handleOnTimerReady: (elements: { spinner: Element }) => () => {
+  handleOnVideoReady:
+    (
+      renderer: SideInfoRenderer,
+      elements: { song: Element; artist: Element }
+    ) =>
+    () => {
+      const { song } = player.data;
+      elements.artist.textContent = song.artist.name;
+      elements.song.textContent = song.name;
+      ControlPanel.initSeekBar(song.length);
+      renderer.showSongInfo({
+        title: song.name,
+        artist: song.artist.name,
+      });
+    },
+  handleOnTimerReady: (elements: { spinner: Element }) => async () => {
     // ローディング表示の解除
+    await fontLoader;
     elements.spinner.classList.add("loaded");
     // コントロールパネルから曲変更時は自動再生
     // https://developer.chrome.com/blog/autoplay/
