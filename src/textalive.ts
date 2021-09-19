@@ -39,6 +39,7 @@ export const initializePlayer = ({
     handleOnPlay,
     handleOnPause,
     handleOnStop,
+    handleOnMediaSeek,
   } = handlePlayer({
     player,
     three,
@@ -64,6 +65,7 @@ export const initializePlayer = ({
   const onPlay = handleOnPlay();
   const onPause = handleOnPause(lyricsManager);
   const onStop = handleOnStop(lyricsManager);
+  const onMediaSeek = handleOnMediaSeek();
   player.addListener({
     onAppReady,
     onVideoReady,
@@ -72,6 +74,7 @@ export const initializePlayer = ({
     onPlay,
     onPause,
     onStop,
+    onMediaSeek,
   });
 
   return player;
@@ -94,6 +97,7 @@ const handlePlayer = ({
     const { song } = player.data;
     elements.artist.textContent = song.artist.name;
     elements.song.textContent = song.name;
+    ControlPanel.initSeekBar(song.length);
     three.showSongInfo({
       title: song.name,
       artist: song.artist.name,
@@ -146,5 +150,8 @@ const handlePlayer = ({
   },
   handleOnStop: (manager: LyricsManager) => () => {
     manager.stop();
+  },
+  handleOnMediaSeek: () => (position: number) => {
+    ControlPanel.updateSeekBar(position);
   },
 });

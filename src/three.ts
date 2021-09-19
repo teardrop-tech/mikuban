@@ -168,17 +168,17 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       scene.add(mesh);
     };
 
-    window.addEventListener("mousedown", () => {
+    canvas.addEventListener("mousedown", () => {
       isTouching = true;
       generateMeshLine();
     });
-    window.addEventListener("mouseup", () => {
+    canvas.addEventListener("mouseup", () => {
       isTouching = false;
     });
-    window.addEventListener("mouseout", () => {
+    canvas.addEventListener("mouseout", () => {
       isTouching = false;
     });
-    window.addEventListener("mousemove", (event) => {
+    canvas.addEventListener("mousemove", (event) => {
       const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1
@@ -199,14 +199,22 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       }
     });
 
-    window.addEventListener("touchstart", () => {
-      isTouching = true;
-      generateMeshLine();
-    });
+    canvas.addEventListener(
+      "touchstart",
+      (event) => {
+        if (event.touches && event.touches.length > 1) {
+          event.preventDefault();
+          return;
+        }
+        isTouching = true;
+        generateMeshLine();
+      },
+      { passive: false }
+    );
     window.addEventListener("touchend", () => {
       isTouching = false;
     });
-    window.addEventListener("touchmove", (event) => {
+    canvas.addEventListener("touchmove", (event) => {
       const touchList: TouchList = event.changedTouches;
       // ファーストタッチのみ処理
       const touch: Touch | undefined = touchList[0];
