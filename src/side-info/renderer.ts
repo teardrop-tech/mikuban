@@ -116,23 +116,6 @@ const toVertical = (text: string) => text.split("").join("\n");
 const toVerticalDate = (cal: Date) => {
   const month = cal.getMonth() + 1;
   const date = cal.getDate();
-  const day = ((d) => {
-    switch (d) {
-      case 0:
-        return "日";
-      case 1:
-        return "月";
-      case 2:
-        return "火";
-      case 3:
-        return "水";
-      case 4:
-        return "木";
-      case 5:
-        return "金";
-      case 6:
-        return "土";
-    }
-  })(cal.getDay());
+  const day = ["日", "月", "火", "水", "木", "金", "土"][cal.getDay()];
   return [month, "月", date, "日", `(${day})`].join("\n");
 };
