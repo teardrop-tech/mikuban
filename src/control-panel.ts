@@ -4,7 +4,7 @@ import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 
 import { ThreeWrapper } from "./three";
 import { safetyGetElementById, downloadDisplayCapture } from "./utils";
-import { theme, paintSettings, musicList } from "./definition";
+import { theme, paintSettings, musicList, twitter } from "./definition";
 
 /**
  * コントロールパネル
@@ -188,8 +188,7 @@ class ControlPanel {
       })
       .on("click", () => {
         const link = document.createElement("a");
-        link.href =
-          "https://twitter.com/intent/tweet?text=%23初音ミク %23マジカルミライ2021%0a%23mm2021procon %23みくばん";
+        link.href = twitter.twitterLinkWithHashtag;
         link.click();
       });
   }
