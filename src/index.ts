@@ -3,8 +3,9 @@ import { initializePlayer } from "./textalive";
 import { isThemeColorId, safetyGetElementById } from "./utils";
 import { theme } from "./definition";
 import ControlPanel from "./control-panel";
+import preloadFont from "./font-loader";
 
-window.onload = async () => {
+window.onload = () => {
   if (innerHeight > innerWidth) {
     alert("デバイスを横画面にしてください (＞人＜;)\nPlease use landscape 🙏");
     return;
@@ -14,14 +15,17 @@ window.onload = async () => {
     safetyGetElementById("debug").style.display = "block";
   }
 
-  const three = await setupThree();
+  const three = setupThree();
 
   // 画面リサイズ時のコールバックの設定
   window.addEventListener("resize", resizeDisplay(three));
 
+  const fontLoader = preloadFont();
+
   const player = initializePlayer({
-    three,
+    scene: three.scene,
     token: process.env.TOKEN ?? "",
+    fontLoader,
   });
 
   // コントロールパネルの表示

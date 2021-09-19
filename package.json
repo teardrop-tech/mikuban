@@ -1,14 +1,15 @@
 {
   "private": true,
   "scripts": {
-    "start": "webpack-cli serve",
-    "start:debug": "cross-env DEBUG=true webpack-cli serve",
+    "start": "webpack-cli serve --mode development",
+    "start:debug": "cross-env DEBUG=true webpack-cli serve --mode development",
     "build": "webpack --mode production",
     "check": "prettier -c . && eslint src/**/*.ts"
   },
   "devDependencies": {
     "@types/opentype.js": "^1.3.3",
     "@types/three": "^0.131.0",
+    "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
     "@typescript-eslint/parser": "^4.31.0",
     "clean-webpack-plugin": "^4.0.0",
@@ -34,6 +35,7 @@
     "opentype.js": "^1.3.3",
     "textalive-app-api": "^0.3.0",
     "three": "^0.132.2",
+    "troika-three-text": "^0.42.0",
     "tweakpane": "^3.0.5"
   }
 }
