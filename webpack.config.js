@@ -5,8 +5,11 @@ const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
-module.exports = {
-  mode: "development",
+const isProduction = (mode) => mode === "production";
+
+/** @return {import('webpack').Configuration} */
+module.exports = (_, { mode }) => ({
+  mode,
   entry: "./src/index.ts",
   output: {
     filename: "bundle.js",
@@ -37,5 +40,5 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".js"],
   },
-  devtool: "inline-source-map",
-};
+  devtool: isProduction(mode) ? false : "inline-source-map",
+});
