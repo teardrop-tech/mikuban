@@ -1,4 +1,19 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "Chiquewa",
+    "Hatsune",
+    "kaito",
+    "Kokuban",
+    "luka",
+    "meiko",
+    "meshline",
+    "Miku",
+    "Mikuban",
+    "opentype",
+    "procon",
+    "textalive",
+    "tweakpane"
+  ]
 }
