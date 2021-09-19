@@ -1,4 +1,4 @@
-import { theme } from "./definition";
+import { theme, disclaimer } from "./definition";
 import html2canvas from "html2canvas";
 
 export const safetyGetElementById = (id: string): HTMLElement => {
@@ -45,11 +45,15 @@ export const toVerticalDate = (cal: Date) => {
  * 画面全体の画像をダウンロード
  */
 export const downloadDisplayCapture = (): void => {
-  const element = document?.querySelector("#capture") as HTMLElement;
-  html2canvas(element).then((canvas) => {
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL();
-    link.download = "miku_ban";
-    link.click();
-  });
+  if (confirm(disclaimer)) {
+    const element = document?.querySelector("#capture") as HTMLElement;
+    html2canvas(element).then((canvas) => {
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL();
+      link.download = "mikuban";
+      link.click();
+    });
+  } else {
+    return;
+  }
 };

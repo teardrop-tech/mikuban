@@ -178,6 +178,20 @@ class ControlPanel {
       .on("click", () => {
         downloadDisplayCapture();
       });
+
+    // セパレータの追加
+    tab.pages[1]?.addSeparator();
+
+    tab.pages[1]
+      ?.addButton({
+        title: "Tweet",
+      })
+      .on("click", () => {
+        const link = document.createElement("a");
+        link.href =
+          "https://twitter.com/intent/tweet?text=%23初音ミク %23マジカルミライ2021%0a%23mm2021procon %23みくばん";
+        link.click();
+      });
   }
 
   /**
