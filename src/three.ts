@@ -199,11 +199,19 @@ export const setupThree = (): Promise<ThreeWrapper> =>
       }
     });
 
-    canvas.addEventListener("touchstart", () => {
-      isTouching = true;
-      generateMeshLine();
-    });
-    canvas.addEventListener("touchend", () => {
+    canvas.addEventListener(
+      "touchstart",
+      (event) => {
+        if (event.touches && event.touches.length > 1) {
+          event.preventDefault();
+          return;
+        }
+        isTouching = true;
+        generateMeshLine();
+      },
+      { passive: false }
+    );
+    window.addEventListener("touchend", () => {
       isTouching = false;
     });
     canvas.addEventListener("touchmove", (event) => {
