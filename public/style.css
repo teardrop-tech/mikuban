@@ -20,6 +20,8 @@ body {
 }
 
 #three {
+  outline: 20px ridge var(--color-blackboard-border);
+  outline-offset: -20px;
   display: block;
 }
 
@@ -27,8 +29,6 @@ body {
   width: 100vw;
   height: 100vh;
   position: relative;
-  outline: 20px ridge var(--color-blackboard-border);
-  outline-offset: -20px;
 }
 
 #layer-wrap > canvas {

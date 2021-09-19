@@ -13,10 +13,6 @@ export const theme = {
 
 export const paintSettings = {
   lineWidth: 10,
-  drawOffset: {
-    x: 25,
-    y: 25,
-  },
 } as const;
 
 export const musicList = [
