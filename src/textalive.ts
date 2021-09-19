@@ -6,12 +6,13 @@ import { safetyGetElementById } from "./utils";
 import { musicList } from "./definition";
 import createLyricsManager, { LyricsManager } from "./lyrics/manager";
 import createLyricsRenderer from "./lyrics/renderer";
+import createSideInfoRenderer, { SideInfoRenderer } from "./side-info/renderer";
 
 export const initializePlayer = ({
-  three,
+  scene,
   token,
 }: {
-  three: ThreeWrapper;
+  scene: THREE.Scene;
   token: string;
 }) => {
   const player = new Player({
@@ -24,12 +25,14 @@ export const initializePlayer = ({
 
   const lyricsManager = createLyricsManager({
     player,
-    renderer: createLyricsRenderer(three.getRenderer()),
+    renderer: createLyricsRenderer({ scene }),
     elements: {
       phrase: safetyGetElementById("phrase"),
       word: safetyGetElementById("word"),
     },
   });
+
+  const songInfoRenderer = createSideInfoRenderer({ scene });
 
   const {
     handleOnAppReady,
@@ -42,10 +45,9 @@ export const initializePlayer = ({
     handleOnMediaSeek,
   } = handlePlayer({
     player,
-    three,
   });
   const onAppReady = handleOnAppReady();
-  const onVideoReady = handleOnVideoReady({
+  const onVideoReady = handleOnVideoReady(songInfoRenderer, {
     song: safetyGetElementById("song"),
     artist: safetyGetElementById("artist"),
   });
@@ -80,29 +82,28 @@ export const initializePlayer = ({
   return player;
 };
 
-const handlePlayer = ({
-  player,
-  three,
-}: {
-  player: Player;
-  three: ThreeWrapper;
-}) => ({
+const handlePlayer = ({ player }: { player: Player }) => ({
   handleOnAppReady: () => (app: IPlayerApp) => {
     if (!app.songUrl) {
       // デフォルト選択曲
       player.createFromSongUrl(musicList[0]?.value);
     }
   },
-  handleOnVideoReady: (elements: { song: Element; artist: Element }) => () => {
-    const { song } = player.data;
-    elements.artist.textContent = song.artist.name;
-    elements.song.textContent = song.name;
-    ControlPanel.initSeekBar(song.length);
-    three.showSongInfo({
-      title: song.name,
-      artist: song.artist.name,
-    });
-  },
+  handleOnVideoReady:
+    (
+      renderer: SideInfoRenderer,
+      elements: { song: Element; artist: Element }
+    ) =>
+    () => {
+      const { song } = player.data;
+      elements.artist.textContent = song.artist.name;
+      elements.song.textContent = song.name;
+      ControlPanel.initSeekBar(song.length);
+      renderer.showSongInfo({
+        title: song.name,
+        artist: song.artist.name,
+      });
+    },
   handleOnTimerReady: (elements: { spinner: Element }) => () => {
     // ローディング表示の解除
     elements.spinner.classList.add("loaded");
