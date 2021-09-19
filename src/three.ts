@@ -235,7 +235,7 @@ export const setupThree = (): Promise<ThreeWrapper> =>
     });
 
     const loader = new TTFLoader();
-    loader.load("TanukiMagic.ttf", (json: unknown) => {
+    loader.load("YuseiMagic-Regular.ttf", (json: unknown) => {
       const font = new THREE.FontLoader().parse(json);
       state.font = font;
 

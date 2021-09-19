@@ -3,6 +3,7 @@ const ESLintPlugin = require("eslint-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
   mode: "development",
@@ -31,6 +32,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "index.html",
     }),
+    new CleanWebpackPlugin(),
   ],
   resolve: {
     extensions: [".ts", ".js"],
