@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "webpack-cli serve",
-    "start:debug": "cross-env DEBUG=true webpack-cli serve",
+    "start": "webpack-cli serve --mode development",
+    "start:debug": "cross-env DEBUG=true webpack-cli serve --mode development",
     "build": "webpack --mode production",
     "check": "prettier -c . && eslint src/**/*.ts"
   },
