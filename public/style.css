@@ -5,6 +5,30 @@
   --color-eraser: linear-gradient(0deg, #0c023a 80%, #a06b1c 80%);
   --color-wall-background: #ffffef;
   --color-white: white;
+
+  /* https://cocopon.github.io/tweakpane/theming.html#builder */
+  /* https://www.color-hex.com/color-palette/19601 */
+  --tp-base-background-color: hsla(178, 42%, 67%, 1);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+  --tp-button-background-color: hsla(0, 0%, 100%, 1);
+  --tp-button-background-color-active: hsla(0, 0%, 85%, 1);
+  --tp-button-background-color-focus: hsla(0, 0%, 90%, 1);
+  --tp-button-background-color-hover: hsla(0, 0%, 95%, 1);
+  --tp-button-foreground-color: hsla(230, 20%, 11%, 1);
+  --tp-container-background-color: hsla(0, 0%, 0%, 0.2);
+  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.3);
+  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.9);
+  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.5);
+  --tp-input-background-color: hsla(0, 0%, 0%, 0.5);
+  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.6);
+  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.9);
+  --tp-label-foreground-color: hsla(183, 74%, 29%, 0.9);
+  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.5);
+  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.5);
 }
 
 *,
