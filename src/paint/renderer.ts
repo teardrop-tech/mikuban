@@ -81,6 +81,12 @@ export default ({ scene, camera, canvas }: Props): Renderer => {
 
   let isTouching = false;
 
+  const enableChalkButtons = (enable: boolean) => {
+    const chalksElement = document.getElementById("chalks");
+    if (!chalksElement) return;
+    chalksElement.style.pointerEvents = enable ? "auto" : "none";
+  };
+
   const generateMeshLine = () => {
     points.splice(0, points.length);
     meshLine = new MeshLine();
@@ -102,13 +108,16 @@ export default ({ scene, camera, canvas }: Props): Renderer => {
 
   canvas.addEventListener("mousedown", () => {
     isTouching = true;
+    enableChalkButtons(false);
     generateMeshLine();
   });
   canvas.addEventListener("mouseup", () => {
     isTouching = false;
+    enableChalkButtons(true);
   });
   canvas.addEventListener("mouseout", () => {
     isTouching = false;
+    enableChalkButtons(true);
   });
   canvas.addEventListener("mousemove", (event) => {
     const mouse = new THREE.Vector2(
@@ -139,12 +148,14 @@ export default ({ scene, camera, canvas }: Props): Renderer => {
         return;
       }
       isTouching = true;
+      enableChalkButtons(false);
       generateMeshLine();
     },
     { passive: false }
   );
   window.addEventListener("touchend", () => {
     isTouching = false;
+    enableChalkButtons(true);
   });
   canvas.addEventListener("touchmove", (event) => {
     const touchList: TouchList = event.changedTouches;
