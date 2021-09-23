@@ -8,6 +8,7 @@ import { font as ChalkFont } from "../font-loader";
 
 export interface LyricRenderer {
   renderPhrase: (phrase?: IPhrase) => void;
+  changeOpacity: (progress: number) => void;
 }
 
 interface Props {
@@ -82,7 +83,28 @@ export default ({ scene }: Props): LyricRenderer => {
   text.color = 0xffffff;
   scene.add(text);
 
+  let next: IPhrase | undefined;
+
   return {
-    renderPhrase: (phrase) => (text.text = fitPhrase(phrase)),
+    renderPhrase: (phrase) => {
+      if (!phrase && next) {
+        // 次のフレーズをあらかじめロード
+        text.text = fitPhrase(next);
+        text.material.opacity = 0;
+        next = undefined;
+      } else {
+        if (phrase == next) {
+          text.material.opacity = 1;
+        } else {
+          text.text = fitPhrase(phrase);
+        }
+        next = phrase?.next;
+      }
+      text.sync();
+    },
+    changeOpacity: (progress) => {
+      text.material.opacity = progress;
+      text.sync();
+    },
   };
 };
