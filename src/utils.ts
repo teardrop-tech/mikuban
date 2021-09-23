@@ -23,9 +23,17 @@ export const downloadDisplayCapture = (): void => {
     return;
   }
   html2canvas(safetyGetElementById("capture")).then((canvas) => {
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL();
-    link.download = "mikuban";
-    link.click();
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      document.body.appendChild(link);
+      link.download = "mikuban.png";
+      link.href = url;
+      link.click();
+      link.remove();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1e4);
+    }, "image/png");
   });
 };
