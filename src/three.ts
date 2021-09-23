@@ -1,12 +1,6 @@
 import * as THREE from "three";
 export interface ThreeWrapper {
   play: () => void;
-  /**
-   * 画面のリサイズ
-   * @param {number} width 画面の幅
-   * @param {number} height 画面の高さ
-   */
-  resizeDisplay: (width: number, height: number) => void;
   scene: THREE.Scene;
   camera: THREE.Camera;
   canvas: HTMLCanvasElement;
@@ -50,14 +44,15 @@ export const setupThree = (): ThreeWrapper => {
     renderer.render(scene, camera);
     requestAnimationFrame(play);
   };
-  const resizeDisplay = (width: number, height: number) => {
-    renderer.setSize(width, height);
+
+  // 画面リサイズ時のコールバックの設定
+  addEventListener("resize", () => {
+    renderer.setSize(innerWidth, innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-  };
+  });
 
   return {
     play,
-    resizeDisplay,
     scene,
     camera,
     canvas,

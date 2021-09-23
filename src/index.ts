@@ -1,13 +1,20 @@
-import { setupThree, ThreeWrapper } from "./three";
+import { setupThree } from "./three";
 import { initializePlayer } from "./textalive";
-import { isThemeColorId, safetyGetElementById } from "./utils";
-import { theme } from "./definition";
+import { safetyGetElementById } from "./utils";
 import ControlPanel from "./control-panel";
 import preloadFont from "./font-loader";
+import { initChalkButtons } from "./paint";
+import Validate from "./validator";
 
-window.onload = () => {
-  if (innerHeight > innerWidth) {
-    alert("デバイスを横画面にしてください (＞人＜;)\nPlease use landscape 🙏");
+window.onload = async () => {
+  addEventListener("orientationchange", () => location.reload(), false);
+
+  try {
+    await Validate();
+  } catch {
+    // Blackout
+    document.body.style.backgroundColor = "black";
+    document.body.innerHTML = "";
     return;
   }
 
@@ -16,9 +23,6 @@ window.onload = () => {
   }
 
   const three = setupThree();
-
-  // 画面リサイズ時のコールバックの設定
-  window.addEventListener("resize", resizeDisplay(three));
 
   const fontLoader = preloadFont();
 
@@ -36,58 +40,3 @@ window.onload = () => {
 
   three.play();
 };
-
-/**
- * 画面のリサイズ
- * @param {ThreeWrapper} three ThreeWrapperインスタンス
- */
-const resizeDisplay = (three: ThreeWrapper) => () => {
-  const width: number = window.innerWidth;
-  const height: number = window.innerHeight;
-  // three canvasのリサイズ
-  three.resizeDisplay(width, height);
-};
-
-/**
- * チョークボタンの初期化
- */
-const initChalkButtons = () => {
-  const element = safetyGetElementById("chalks");
-  element?.childNodes.forEach((button) => {
-    if (!(button instanceof HTMLButtonElement)) {
-      return;
-    }
-    button.disabled = false;
-
-    // 黒板消し
-    if (button.id === "eraser") {
-      button.onclick = (ev) => {
-        ev.preventDefault();
-        ControlPanel.toggleEraserMode();
-      };
-      return;
-    }
-
-    // チョーク
-    const colorId = button.id;
-    if (isThemeColorId(colorId)) {
-      const color = theme.color[colorId];
-      button.style.backgroundColor = button.style.borderColor = color;
-      button.onclick = (ev) => {
-        ev.preventDefault();
-        ControlPanel.changeColorPicker(color);
-      };
-      return;
-    }
-
-    throw new Error(`Unknown button id: ${button.id}`);
-  });
-};
-
-addEventListener(
-  "orientationchange",
-  () => {
-    location.reload();
-  },
-  false
-);
