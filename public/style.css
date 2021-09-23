@@ -3,6 +3,7 @@
   --color-loading-border: rgba(255, 255, 255, 0.2);
   --color-loading-background: rgba(0, 0, 0, 0.3);
   --color-eraser: linear-gradient(0deg, #0c023a 80%, #a06b1c 80%);
+  --color-wall-background: #ffffef;
   --color-white: white;
 }
 
@@ -21,6 +22,7 @@ body {
   margin: 0;
   height: 100%;
   overflow: hidden;
+  background-color: var(--color-wall-background);
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
