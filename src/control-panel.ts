@@ -7,6 +7,10 @@ import { safetyGetElementById, downloadDisplayCapture } from "./utils";
 import { theme, paintSettings, musicList, twitter } from "./definition";
 import PaintRenderer from "./paint/renderer";
 
+enum PanelConfig {
+  EXPANDED = "panel-expanded",
+}
+
 /**
  * コントロールパネル
  */
@@ -30,10 +34,12 @@ class ControlPanel {
    * コンストラクタ
    */
   constructor() {
+    const expanded =
+      (localStorage.getItem(PanelConfig.EXPANDED) ?? "true") === "true";
     // コントロールパネルの生成
     this.pane = new Pane({
       title: "Menu",
-      expanded: false,
+      expanded,
     });
     this.player = null;
     this.changeMusicFlg = false;
@@ -57,6 +63,10 @@ class ControlPanel {
       scene,
       camera,
       canvas,
+    });
+
+    this.pane.on("fold", ({ expanded }) => {
+      localStorage.setItem(PanelConfig.EXPANDED, expanded.toString());
     });
 
     // タブの追加
