@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { MeshLine, MeshLineMaterial } from "meshline";
 
 import { theme, paintSettings } from "../definition";
+import { safetyGetElementById } from "../utils";
 
 interface LineInfo {
   width: number;
@@ -82,8 +83,7 @@ export default ({ scene, camera, canvas }: Props): Renderer => {
   let isTouching = false;
 
   const enableChalkButtons = (enable: boolean) => {
-    const chalksElement = document.getElementById("chalks");
-    if (!chalksElement) return;
+    const chalksElement = safetyGetElementById("chalks");
     chalksElement.style.pointerEvents = enable ? "auto" : "none";
   };
 
