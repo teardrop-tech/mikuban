@@ -1,4 +1,4 @@
-# みくばん - Mikuban [![GitHub Actions Status](https://github.com/teardrop-tech/mm2021/actions/workflows/build.yml/badge.svg)](https://github.com/teardrop-tech/mm2021/actions) [![Netlify Status](https://api.netlify.com/api/v1/badges/501e0435-c297-4091-99d2-f60045463b61/deploy-status)](https://app.netlify.com/sites/teardrop-mm2021/deploys)
+# みくばん - Mikuban [![GitHub Actions Status](https://github.com/teardrop-tech/mikuban/actions/workflows/build.yml/badge.svg)](https://github.com/teardrop-tech/mikuban/actions/workflows/build.yml) [![Netlify Status](https://api.netlify.com/api/v1/badges/423bbd93-7a23-4af4-9680-00b95ef486d0/deploy-status)](https://app.netlify.com/sites/mikuban/deploys)
 
 ```
 初音ミク + こくばん
