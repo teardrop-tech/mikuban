@@ -45,7 +45,7 @@ const showDate = ({
     x: innerWidth * 0.05,
     y: innerHeight * 0.12,
   };
-  text.position.set(innerWidth / 2 - offset.x, offset.y, 1);
+  text.position.set(innerWidth / 2 - offset.x, offset.y, 0);
   scene.add(text);
 };
 
@@ -64,7 +64,7 @@ const showSongTitle = ({
     x: innerWidth * 0.05 - innerWidth * 0.005,
     y: innerHeight * 0.1,
   };
-  text.position.set(innerWidth / 2 - offset.x, offset.y, 1);
+  text.position.set(innerWidth / 2 - offset.x, offset.y, 0);
   scene.add(text);
   return text;
 };
@@ -84,7 +84,7 @@ const showSongArtist = ({
     x: innerWidth * 0.05 + innerWidth * 0.005,
     y: innerHeight * 0.1,
   };
-  text.position.set(innerWidth / 2 - offset.x, offset.y, 1);
+  text.position.set(innerWidth / 2 - offset.x, offset.y, 0);
   scene.add(text);
   return text;
 };
