@@ -5,6 +5,7 @@ import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 import { ThreeWrapper } from "./three";
 import { safetyGetElementById, downloadDisplayCapture } from "./utils";
 import { theme, paintSettings, musicList, twitter } from "./definition";
+import PaintRenderer from "./paint/renderer";
 
 /**
  * コントロールパネル
@@ -47,10 +48,16 @@ class ControlPanel {
    * @param {Player} player TextAlive Player
    * @param {ThreeWrapper} threeWrapper ThreeWrapper
    */
-  public init(player: Player, threeWrapper: ThreeWrapper): void {
+  public init(player: Player, { scene, camera, canvas }: ThreeWrapper): void {
     this.player = player;
 
     this.pane.registerPlugin(EssentialsPlugin);
+
+    const paintRenderer = PaintRenderer({
+      scene,
+      camera,
+      canvas,
+    });
 
     // タブの追加
     const tab = this.pane.addTab({
@@ -136,14 +143,14 @@ class ControlPanel {
         }
       )
       .on("change", (ev) => {
-        threeWrapper.setLineWidth(ev.value);
+        paintRenderer.setLineWidth(ev.value);
       });
 
     tab.pages[1]?.addInput(this.colorParam, "Color").on("change", (ev) => {
       if (this.eraserParam.EraserMode) {
-        threeWrapper.setPrevLineColor(ev.value);
+        paintRenderer.setPrevLineColor(ev.value);
       } else {
-        threeWrapper.setLineColor(ev.value);
+        paintRenderer.setLineColor(ev.value);
       }
     });
 
@@ -151,9 +158,9 @@ class ControlPanel {
       ?.addInput(this.eraserParam, "EraserMode")
       .on("change", (ev) => {
         if (ev.value) {
-          threeWrapper.setLineColor(theme.color.blackboard);
+          paintRenderer.setLineColor(theme.color.blackboard);
         } else {
-          threeWrapper.setLineColor(this.colorParam.Color);
+          paintRenderer.setLineColor(this.colorParam.Color);
         }
       });
 
@@ -165,7 +172,7 @@ class ControlPanel {
         title: "Clear Black Board",
       })
       .on("click", () => {
-        threeWrapper.clearPaintMesh();
+        paintRenderer.clearPaintMesh();
       });
 
     // セパレータの追加
