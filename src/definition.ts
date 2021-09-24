@@ -46,7 +46,13 @@ export const twitter = {
   baseUrl: `https://twitter.com/intent/tweet`,
   text: `
 ${location.href}`,
-  hashtags: ["初音ミク", "マジカルミライ2021", "mm2021procon", "みくばん"],
+  hashtags: [
+    "初音ミク",
+    "マジカルミライ2021",
+    "mm2021procon",
+    "みくばん",
+    "みくばんアート",
+  ],
   via: "teardrop_tech",
   toURL: () => {
     const url = new URL(twitter.baseUrl);
@@ -60,6 +66,7 @@ ${location.href}`,
 // 免責事項(TODO: ローカライズ)
 export const disclaimer = `スクリーンショットをダウンロードしますか？
 当サイト、またはコンテンツのご利用により、万一、ご利用者様に何らかの不都合や損害が発生したとしても、当サークルは何らの責任を負うものではありません。
-スクリーンショットをご使用の際は、ご注意いただきますようお願い申し上げます。`;
+スクリーンショットをご使用の際は、ご注意いただきますようお願い申し上げます。
+※お使いの端末、ブラウザーによっては、ダウンロード方法が一部異なりますのでご注意ください。`;
 
 export const lyricsFadeTimeMs = 100;

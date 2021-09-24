@@ -82,7 +82,7 @@ class ControlPanel {
       ?.addBlade({
         view: "list",
         options: musicList,
-        value: musicList[0]?.value,
+        value: musicList[2]?.value,
         label: "Songs",
       })
       .on("change", (ev) => {
@@ -100,9 +100,9 @@ class ControlPanel {
     tab.pages[0]
       ?.addBlade({
         view: "buttongrid",
-        size: [4, 1],
+        size: [3, 1],
         cells: (x: number, y: number) => ({
-          title: [["Play", "Pause", "Stop", "Jump"]][y]?.[x],
+          title: [["Play", "Pause", "Stop"]][y]?.[x],
         }),
       })
       .on("click", (ev) => {
@@ -179,7 +179,7 @@ class ControlPanel {
 
     tab.pages[1]
       ?.addButton({
-        title: "Clear Black Board",
+        title: "Clear Paint",
       })
       .on("click", () => {
         paintRenderer.clearPaintMesh();

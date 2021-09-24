@@ -56,8 +56,6 @@ body {
 }
 
 #three {
-  border: 20px var(--color-blackboard-border);
-  border-style: ridge;
   display: block;
 }
 
