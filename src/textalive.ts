@@ -92,7 +92,7 @@ const handlePlayer = ({
   handleOnAppReady: () => (app: IPlayerApp) => {
     if (!app.songUrl) {
       // デフォルト選択曲
-      player.createFromSongUrl(musicList[0]?.value);
+      player.createFromSongUrl(musicList[2]?.value);
     }
   },
   handleOnVideoReady:
@@ -111,15 +111,10 @@ const handlePlayer = ({
       });
     },
   handleOnTimerReady: (elements: { spinner: Element }) => async () => {
-    // ローディング表示の解除
     await fontLoader;
+    // ローディング表示の解除
     elements.spinner.classList.add("loaded");
-    // コントロールパネルから曲変更時は自動再生
-    // https://developer.chrome.com/blog/autoplay/
-    if (ControlPanel.getMusicChangeFlg()) {
-      player.video && player.requestPlay();
-      ControlPanel.setMusicChangeFlg(false);
-    }
+    player.video && player.requestPlay();
   },
   handleOnTimeUpdate:
     (

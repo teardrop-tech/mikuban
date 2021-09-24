@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import DrawBlackBoard from "./blackboard";
+
 export interface ThreeWrapper {
   play: () => void;
   scene: THREE.Scene;
@@ -50,6 +52,9 @@ export const setupThree = (): ThreeWrapper => {
     renderer.setSize(innerWidth, innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
   });
+
+  // 黒板の縁の表示
+  DrawBlackBoard({ scene });
 
   return {
     play,
