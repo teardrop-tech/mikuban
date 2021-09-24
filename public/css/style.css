@@ -98,8 +98,22 @@ body {
 
 /** Tweakpane */
 .tp-dfwv {
-  top: 24px !important;
-  left: 24px !important;
+  top: 24px;
+  left: 24px;
+  width: 360px;
+}
+
+.tp-lblv {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tp-lblv_v {
+  width: 100%;
+}
+
+.tp-sldtxtv_t {
+  max-width: 50px;
 }
 
 /** ローディング表示 */
