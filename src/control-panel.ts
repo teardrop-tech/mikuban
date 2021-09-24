@@ -4,12 +4,52 @@ import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 
 import { ThreeWrapper } from "./three";
 import { safetyGetElementById, downloadDisplayCapture } from "./utils";
-import { theme, paintSettings, musicList, twitter } from "./definition";
+import {
+  theme,
+  paintSettings,
+  musicList,
+  twitter,
+  defaultMusic,
+} from "./definition";
 import PaintRenderer from "./paint/renderer";
 
-enum PanelConfig {
+export enum PanelConfig {
   EXPANDED = "panel-expanded",
+  VOLUME = "panel-volume",
+  MUSIC = "panel-music",
+  LINE_WIDTH = "panel-line-bold",
+  LINE_COLOR = "panel-line-color",
 }
+
+export const loadConfigValue = (key: PanelConfig): string => {
+  switch (key) {
+    case PanelConfig.EXPANDED:
+      return localStorage.getItem(key) || "true";
+    case PanelConfig.VOLUME:
+      return localStorage.getItem(key) || "100";
+    case PanelConfig.MUSIC:
+      return localStorage.getItem(key) || defaultMusic.value;
+    case PanelConfig.LINE_WIDTH:
+      return localStorage.getItem(key) || paintSettings.lineWidth.toString();
+    case PanelConfig.LINE_COLOR:
+      return localStorage.getItem(key) || theme.color.miku;
+    default:
+      throw Error("Unknown config: " + key);
+  }
+};
+
+export const saveConfigValue = (key: PanelConfig, value: string): void => {
+  switch (key) {
+    case PanelConfig.EXPANDED:
+    case PanelConfig.VOLUME:
+    case PanelConfig.MUSIC:
+    case PanelConfig.LINE_WIDTH:
+    case PanelConfig.LINE_COLOR:
+      return localStorage.setItem(key, value);
+    default:
+      throw Error("Unknown config: " + key);
+  }
+};
 
 /**
  * コントロールパネル
@@ -22,7 +62,7 @@ class ControlPanel {
   /** 曲変更フラグ */
   private changeMusicFlg: boolean;
   /** カラーピッカーのパラメータ */
-  private colorParam: { Color: string };
+  private colorParam: { LineColor: string };
   /** 消しゴムモードのパラメータ */
   private eraserParam: { EraserMode: boolean };
   /** シークバーのパラメータ */
@@ -34,8 +74,7 @@ class ControlPanel {
    * コンストラクタ
    */
   constructor() {
-    const expanded =
-      (localStorage.getItem(PanelConfig.EXPANDED) ?? "true") === "true";
+    const expanded = loadConfigValue(PanelConfig.EXPANDED) === "true";
     // コントロールパネルの生成
     this.pane = new Pane({
       title: "Menu",
@@ -43,8 +82,10 @@ class ControlPanel {
     });
     this.player = null;
     this.changeMusicFlg = false;
-    this.colorParam = { Color: theme.color.miku };
-    this.eraserParam = { EraserMode: false };
+    this.colorParam = { LineColor: loadConfigValue(PanelConfig.LINE_COLOR) };
+    this.eraserParam = {
+      EraserMode: false,
+    };
     this.seekParam = { Time: 0 };
     this.isSeeking = false;
   }
@@ -66,7 +107,7 @@ class ControlPanel {
     });
 
     this.pane.on("fold", ({ expanded }) => {
-      localStorage.setItem(PanelConfig.EXPANDED, expanded.toString());
+      saveConfigValue(PanelConfig.EXPANDED, expanded.toString());
     });
 
     // タブの追加
@@ -82,13 +123,14 @@ class ControlPanel {
       ?.addBlade({
         view: "list",
         options: musicList,
-        value: musicList[2]?.value,
+        value: loadConfigValue(PanelConfig.MUSIC),
         label: "Songs",
       })
       .on("change", (ev) => {
         // 曲の停止
         player.requestStop();
         player.createFromSongUrl(ev.value);
+        saveConfigValue(PanelConfig.MUSIC, ev.value);
         this.changeMusicFlg = true;
         // ローディングの表示
         safetyGetElementById("loading").classList.remove("loaded");
@@ -127,7 +169,7 @@ class ControlPanel {
     tab.pages[0]
       ?.addInput(
         {
-          Volume: player.volume,
+          Volume: Number(loadConfigValue(PanelConfig.VOLUME)),
         },
         "Volume",
         {
@@ -137,13 +179,15 @@ class ControlPanel {
         }
       )
       .on("change", (ev) => {
-        player.volume = Math.round(ev.value);
+        const volume = Math.round(Number(ev.value));
+        player.volume = volume;
+        saveConfigValue(PanelConfig.VOLUME, volume.toString());
       });
 
     tab.pages[1]
       ?.addInput(
         {
-          LineWidth: paintSettings.lineWidth,
+          LineWidth: Number(loadConfigValue(PanelConfig.LINE_WIDTH)),
         },
         "LineWidth",
         {
@@ -153,13 +197,15 @@ class ControlPanel {
         }
       )
       .on("change", (ev) => {
+        saveConfigValue(PanelConfig.LINE_WIDTH, ev.value.toString());
         paintRenderer.setLineWidth(ev.value);
       });
 
-    tab.pages[1]?.addInput(this.colorParam, "Color").on("change", (ev) => {
+    tab.pages[1]?.addInput(this.colorParam, "LineColor").on("change", (ev) => {
       if (this.eraserParam.EraserMode) {
         paintRenderer.setPrevLineColor(ev.value);
       } else {
+        saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
         paintRenderer.setLineColor(ev.value);
       }
     });
@@ -170,7 +216,7 @@ class ControlPanel {
         if (ev.value) {
           paintRenderer.setLineColor(theme.color.blackboard);
         } else {
-          paintRenderer.setLineColor(this.colorParam.Color);
+          paintRenderer.setLineColor(this.colorParam.LineColor);
         }
       });
 
@@ -229,7 +275,7 @@ class ControlPanel {
    * @param {string} color カラーコード
    */
   public changeColorPicker(color: string): void {
-    this.colorParam.Color = color;
+    this.colorParam.LineColor = color;
     // UIの反映
     this.pane?.refresh();
   }

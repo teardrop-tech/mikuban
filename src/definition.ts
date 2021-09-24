@@ -63,6 +63,8 @@ ${location.href}`,
   },
 } as const;
 
+export const defaultMusic = musicList[2];
+
 // 免責事項(TODO: ローカライズ)
 export const disclaimer = `スクリーンショットをダウンロードしますか？
 当サイト、またはコンテンツのご利用により、万一、ご利用者様に何らかの不都合や損害が発生したとしても、当サークルは何らの責任を負うものではありません。

@@ -1,20 +1,14 @@
 import * as THREE from "three";
 import { MeshLine, MeshLineMaterial } from "meshline";
 
-import { theme, paintSettings } from "../definition";
 import { safetyGetElementById } from "../utils";
+import { loadConfigValue, PanelConfig } from "../control-panel";
 
 interface LineInfo {
   width: number;
   color: string;
   prevColor: string;
 }
-
-const lineInfo: LineInfo = {
-  width: paintSettings.lineWidth,
-  color: theme.color.miku,
-  prevColor: theme.color.miku,
-};
 
 interface State {
   paintMeshes: Array<THREE.Mesh>;
@@ -57,6 +51,12 @@ interface Renderer {
 }
 
 export default ({ scene, camera, canvas }: Props): Renderer => {
+  const lineInfo: LineInfo = {
+    width: Number(loadConfigValue(PanelConfig.LINE_WIDTH)),
+    color: loadConfigValue(PanelConfig.LINE_COLOR),
+    prevColor: loadConfigValue(PanelConfig.LINE_COLOR),
+  };
+
   const texture = new THREE.TextureLoader().load("texture/spray.png");
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(0.01, 0.01);
