@@ -1,8 +1,7 @@
 import { Player, Ease, IPlayerApp } from "textalive-app-api";
 
-import ControlPanel from "./control-panel";
+import ControlPanel, { loadConfigValue, PanelConfig } from "./control-panel";
 import { safetyGetElementById } from "./utils";
-import { musicList } from "./definition";
 import createLyricsManager, { LyricsManager } from "./lyrics/manager";
 import createLyricsRenderer from "./lyrics/renderer";
 import createSideInfoRenderer, { SideInfoRenderer } from "./side-info/renderer";
@@ -92,7 +91,8 @@ const handlePlayer = ({
   handleOnAppReady: () => (app: IPlayerApp) => {
     if (!app.songUrl) {
       // デフォルト選択曲
-      player.createFromSongUrl(musicList[2]?.value);
+      player.createFromSongUrl(loadConfigValue(PanelConfig.MUSIC));
+      player.volume = Number(loadConfigValue(PanelConfig.VOLUME));
     }
   },
   handleOnVideoReady:
