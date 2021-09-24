@@ -64,7 +64,7 @@ const fitPhrase = (phrase?: IPhrase): string => {
 };
 
 export default ({ scene }: Props): LyricRenderer => {
-  const texture = new THREE.TextureLoader().load("texture.png");
+  const texture = new THREE.TextureLoader().load("texture/spray.png");
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   const textureScale = window.innerWidth * 0.005;
   texture.repeat.set(textureScale, textureScale);

@@ -2,7 +2,7 @@
 // @ts-ignore
 import { preloadFont } from "troika-three-text";
 
-export const font = "YuseiMagic-Regular.otf";
+export const font = "font/YuseiMagic-Regular.otf";
 
 export default () =>
   new Promise<void>((resolve) => preloadFont({ font }, resolve));

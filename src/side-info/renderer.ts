@@ -90,7 +90,7 @@ const showSongArtist = ({
 };
 
 export default ({ scene }: Props): SideInfoRenderer => {
-  const texture = new THREE.TextureLoader().load("texture.png");
+  const texture = new THREE.TextureLoader().load("texture/spray.png");
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   const textureScale = innerWidth * 0.001;
   texture.repeat.set(textureScale, textureScale);

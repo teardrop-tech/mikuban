@@ -57,10 +57,10 @@ interface Renderer {
 }
 
 export default ({ scene, camera, canvas }: Props): Renderer => {
-  const texture = new THREE.TextureLoader().load("texture.png");
+  const texture = new THREE.TextureLoader().load("texture/spray.png");
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(0.01, 0.01);
-  const paintTexture = new THREE.TextureLoader().load("texture.png");
+  const paintTexture = new THREE.TextureLoader().load("texture/spray.png");
   paintTexture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   let meshLine = new MeshLine();
