@@ -1,5 +1,4 @@
 import { Player, IPhrase, ITextUnit, IWord } from "textalive-app-api";
-import { lyricsFadeTimeMs } from "../definition";
 
 import { LyricRenderer } from "./renderer";
 
@@ -24,13 +23,7 @@ export interface LyricsManager {
 }
 
 const getObject = <T extends ITextUnit>(units: T[]) => ({
-  at: (time: number) => {
-    const results = units.filter((unit) =>
-      unit.overlaps(time - lyricsFadeTimeMs, time + lyricsFadeTimeMs)
-    );
-    // フェードイン処理を優先
-    return results.length ? results[results.length - 1] : undefined;
-  },
+  at: (time: number) => units.find((unit) => unit.contains(time)),
 });
 
 export default ({ player, elements, renderer }: Props): LyricsManager => {
@@ -45,21 +38,6 @@ export default ({ player, elements, renderer }: Props): LyricsManager => {
       elements.phrase.textContent = phrase?.text ?? "-";
       renderer.renderPhrase(phrase);
       state.currentPhrase = phrase;
-    }
-
-    // フェード処理
-    if (phrase && position) {
-      const startDiff = phrase.startTime - position;
-      const endDiff = position - phrase.endTime;
-      if (0 < startDiff && startDiff < lyricsFadeTimeMs) {
-        const opacity = 1 - startDiff / lyricsFadeTimeMs;
-        renderer.changeOpacity(opacity);
-      } else if (0 < endDiff && endDiff < lyricsFadeTimeMs) {
-        const opacity = 1 - endDiff / lyricsFadeTimeMs;
-        renderer.changeOpacity(opacity);
-      } else {
-        renderer.changeOpacity(1);
-      }
     }
 
     return phrase;
