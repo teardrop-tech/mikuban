@@ -202,12 +202,9 @@ class ControlPanel {
       });
 
     tab.pages[1]?.addInput(this.colorParam, "LineColor").on("change", (ev) => {
-      if (this.eraserParam.EraserMode) {
-        paintRenderer.setPrevLineColor(ev.value);
-      } else {
-        saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
-        paintRenderer.setLineColor(ev.value);
-      }
+      saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
+      paintRenderer.setLineColor(ev.value);
+      this.eraserParam.EraserMode = false;
     });
 
     tab.pages[1]
@@ -276,6 +273,7 @@ class ControlPanel {
    */
   public changeColorPicker(color: string): void {
     this.colorParam.LineColor = color;
+    this.eraserParam.EraserMode = false;
     // UIの反映
     this.pane?.refresh();
   }
