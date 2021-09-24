@@ -85,7 +85,9 @@ export default ({ player, elements, renderer }: Props): LyricsManager => {
       const phrase = updatePhrase(position);
       updateWord(phrase, position);
     },
-    pause: clear,
+    pause: () => {
+      /** Nothing to do */
+    },
     stop: clear,
   };
 };
