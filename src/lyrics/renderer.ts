@@ -6,13 +6,29 @@ import { IPhrase, IWord } from "textalive-app-api";
 
 import { font as ChalkFont } from "../font-loader";
 
+import { theme } from "../definition";
+
 export interface LyricRenderer {
   renderPhrase: (phrase?: IPhrase) => void;
+  setFontSize: (size: number) => void;
+  setColor: (color: string) => void;
 }
 
 interface Props {
   scene: THREE.Scene;
 }
+
+interface TextInfo {
+  fontSize: number;
+  color: THREE.Color;
+}
+const textInfo: TextInfo = {
+  fontSize: window.innerWidth * 0.08,
+  // HACK: デフォルトカラー
+  color: new THREE.Color(
+    localStorage.getItem("panel-lyrics-color") || theme.color.white
+  ),
+};
 
 const MAX_PHRASE_WIDTH = 20;
 
@@ -70,6 +86,7 @@ export default ({ scene }: Props): LyricRenderer => {
   const material = new THREE.MeshStandardMaterial({
     map: texture,
     transparent: true,
+    color: textInfo.color,
   });
   const text = new Text();
   // https://github.com/protectwise/troika/issues/88
@@ -83,6 +100,17 @@ export default ({ scene }: Props): LyricRenderer => {
   scene.add(text);
 
   return {
-    renderPhrase: (phrase) => (text.text = fitPhrase(phrase)),
+    renderPhrase: (phrase) => {
+      text.text = fitPhrase(phrase);
+      text.fontSize = window.innerWidth * 0.08;
+      text.material.color.set(textInfo.color);
+    },
+    setFontSize: (size) => {
+      textInfo.fontSize = size;
+    },
+    setColor: (color) => {
+      const threeColor = new THREE.Color(color);
+      textInfo.color = threeColor;
+    },
   };
 };

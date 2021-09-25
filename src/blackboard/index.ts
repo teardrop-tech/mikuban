@@ -53,7 +53,7 @@ const drawShadow = ({ scene }: Props) => {
     map: frameTexture,
     resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
     sizeAttenuation: 1,
-    lineWidth: 10,
+    lineWidth: 7.5,
     repeat: new THREE.Vector2(3, 1),
   });
   meshMaterial.depthTest = false;
