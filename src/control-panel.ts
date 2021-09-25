@@ -12,6 +12,7 @@ import {
   defaultMusic,
 } from "./definition";
 import PaintRenderer from "./paint/renderer";
+import LyricsRenderer from "./lyrics/renderer";
 
 export enum PanelConfig {
   EXPANDED = "panel-expanded",
@@ -19,6 +20,8 @@ export enum PanelConfig {
   MUSIC = "panel-music",
   LINE_WIDTH = "panel-line-bold",
   LINE_COLOR = "panel-line-color",
+  LYRICS_SIZE = "panel-lyrics-size",
+  LYRICS_COLOR = "panel-lyrics-color",
 }
 
 export const loadConfigValue = (key: PanelConfig): string => {
@@ -33,6 +36,10 @@ export const loadConfigValue = (key: PanelConfig): string => {
       return localStorage.getItem(key) || paintSettings.lineWidth.toString();
     case PanelConfig.LINE_COLOR:
       return localStorage.getItem(key) || theme.color.miku;
+    case PanelConfig.LYRICS_SIZE:
+      return localStorage.getItem(key) || "1";
+    case PanelConfig.LYRICS_COLOR:
+      return localStorage.getItem(key) || theme.color.white;
     default:
       throw Error("Unknown config: " + key);
   }
@@ -45,6 +52,8 @@ export const saveConfigValue = (key: PanelConfig, value: string): void => {
     case PanelConfig.MUSIC:
     case PanelConfig.LINE_WIDTH:
     case PanelConfig.LINE_COLOR:
+    case PanelConfig.LYRICS_SIZE:
+    case PanelConfig.LYRICS_COLOR:
       return localStorage.setItem(key, value);
     default:
       throw Error("Unknown config: " + key);
@@ -59,10 +68,12 @@ class ControlPanel {
   private pane: Pane;
   /** textalive */
   private player: Player | null;
+  /** 現在選択中のタブ  */
+  private currentTabIndex: number;
   /** 曲変更フラグ */
   private changeMusicFlg: boolean;
   /** カラーピッカーのパラメータ */
-  private colorParam: { LineColor: string };
+  private colorParam: { LineColor: string; LyricsColor: string };
   /** 消しゴムモードのパラメータ */
   private eraserParam: { EraserMode: boolean };
   /** シークバーのパラメータ */
@@ -81,8 +92,12 @@ class ControlPanel {
       expanded,
     });
     this.player = null;
+    this.currentTabIndex = 0;
     this.changeMusicFlg = false;
-    this.colorParam = { LineColor: loadConfigValue(PanelConfig.LINE_COLOR) };
+    this.colorParam = {
+      LineColor: loadConfigValue(PanelConfig.LINE_COLOR),
+      LyricsColor: loadConfigValue(PanelConfig.LYRICS_COLOR),
+    };
     this.eraserParam = {
       EraserMode: false,
     };
@@ -104,6 +119,10 @@ class ControlPanel {
       scene,
       camera,
       canvas,
+    });
+
+    const lyricsRenderer = LyricsRenderer({
+      scene,
     });
 
     this.pane.on("fold", ({ expanded }) => {
@@ -205,7 +224,34 @@ class ControlPanel {
       saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
       paintRenderer.setLineColor(ev.value);
       this.eraserParam.EraserMode = false;
+      this.pane?.refresh();
     });
+
+    // TODO: 歌詞のサイズ
+    // tab.pages[1]
+    //   ?.addInput(
+    //     {
+    //       LyricsSize: Number(loadConfigValue(PanelConfig.LYRICS_SIZE)),
+    //     },
+    //     "LyricsSize",
+    //     {
+    //       step: 1,
+    //       min: 1,
+    //       max: 100,
+    //     }
+    //   )
+    //   .on("change", (ev) => {
+    //     const size = Math.round(Number(ev.value));
+    //     saveConfigValue(PanelConfig.LYRICS_SIZE, size.toString());
+    //     lyricsRenderer.setFontSize(size);
+    //   });
+
+    tab.pages[1]
+      ?.addInput(this.colorParam, "LyricsColor")
+      .on("change", (ev) => {
+        saveConfigValue(PanelConfig.LYRICS_COLOR, ev.value);
+        lyricsRenderer.setColor(ev.value);
+      });
 
     tab.pages[1]
       ?.addInput(this.eraserParam, "EraserMode")
@@ -249,6 +295,14 @@ class ControlPanel {
       .on("click", () => {
         open(twitter.toURL());
       });
+  }
+
+  /**
+   * 現在選択中のタブの設定
+   * @param {number} index タブインデックス
+   */
+  public setCurrentTabIndex(index: number): void {
+    this.currentTabIndex = index;
   }
 
   /**
@@ -329,6 +383,7 @@ class ControlPanel {
    */
   public updateSeekBar(position: number): void {
     if (this.isSeeking) return;
+    if (this.currentTabIndex === 1) return;
     const second = position / 1000;
     this.seekParam.Time = Number(second.toFixed(2));
     this.pane.refresh();

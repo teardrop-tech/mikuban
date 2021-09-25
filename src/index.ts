@@ -35,6 +35,23 @@ window.onload = async () => {
   // コントロールパネルの表示
   ControlPanel.init(player, three);
 
+  // HACK: コントロールパネルのタブ情報
+  const tab = document.getElementsByClassName("tp-tbiv_b");
+  const tabs = Array.from(tab);
+  let index = 0;
+  tabs.forEach((element) => {
+    element.id = "tab-id-" + index.toString();
+    ++index;
+  });
+  const tab1 = safetyGetElementById("tab-id-0");
+  tab1.addEventListener("click", () => {
+    ControlPanel.setCurrentTabIndex(0);
+  });
+  const tab2 = safetyGetElementById("tab-id-1");
+  tab2.addEventListener("click", () => {
+    ControlPanel.setCurrentTabIndex(1);
+  });
+
   // チョーク&黒板消しボタンの初期化
   initChalkButtons();
 
