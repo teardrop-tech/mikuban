@@ -17,7 +17,7 @@ export const initChalkButtons = () => {
     if (button.id === "eraser") {
       button.onclick = (ev) => {
         ev.preventDefault();
-        ControlPanel.toggleEraserMode();
+        ControlPanel.onEraserMode();
       };
       return;
     }
