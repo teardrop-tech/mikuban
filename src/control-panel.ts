@@ -204,6 +204,24 @@ class ControlPanel {
       });
 
     tab.pages[1]
+      ?.addInput(this.eraserParam, "EraserMode")
+      .on("change", (ev) => {
+        if (ev.value) {
+          paintRenderer.setLineColor(theme.color.blackboard);
+          const eraser = safetyGetElementById("eraser");
+          eraser.style.borderStyle = "dashed";
+          eraser.style.borderColor = "red";
+          eraser.style.borderWidth = "4px";
+        } else {
+          paintRenderer.setLineColor(this.colorParam.LineColor);
+          const eraser = safetyGetElementById("eraser");
+          eraser.style.borderStyle = "";
+          eraser.style.borderColor = "";
+          eraser.style.borderWidth = "";
+        }
+      });
+
+    tab.pages[1]
       ?.addInput(
         {
           LineWidth: Number(loadConfigValue(PanelConfig.LINE_WIDTH)),
@@ -253,24 +271,6 @@ class ControlPanel {
       .on("change", (ev) => {
         saveConfigValue(PanelConfig.LYRICS_COLOR, ev.value);
         lyricsRenderer.setColor(ev.value);
-      });
-
-    tab.pages[1]
-      ?.addInput(this.eraserParam, "EraserMode")
-      .on("change", (ev) => {
-        if (ev.value) {
-          paintRenderer.setLineColor(theme.color.blackboard);
-          const eraser = safetyGetElementById("eraser");
-          eraser.style.borderStyle = "dashed";
-          eraser.style.borderColor = "red";
-          eraser.style.borderWidth = "4px";
-        } else {
-          paintRenderer.setLineColor(this.colorParam.LineColor);
-          const eraser = safetyGetElementById("eraser");
-          eraser.style.borderStyle = "";
-          eraser.style.borderColor = "";
-          eraser.style.borderWidth = "";
-        }
       });
 
     // セパレータの追加
