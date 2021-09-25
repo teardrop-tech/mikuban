@@ -212,12 +212,18 @@ class ControlPanel {
           eraser.style.borderStyle = "dashed";
           eraser.style.borderColor = "red";
           eraser.style.borderWidth = "4px";
+
+          const cursor = safetyGetElementById("three");
+          cursor.style.cursor = "url(../icon/eraser-fill.png), auto";
         } else {
           paintRenderer.setLineColor(this.colorParam.LineColor);
           const eraser = safetyGetElementById("eraser");
           eraser.style.borderStyle = "";
           eraser.style.borderColor = "";
           eraser.style.borderWidth = "";
+
+          const cursor = safetyGetElementById("three");
+          cursor.style.cursor = "url(../icon/pencil-line.png), auto";
         }
       });
 
