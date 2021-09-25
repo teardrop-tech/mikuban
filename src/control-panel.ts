@@ -80,8 +80,6 @@ class ControlPanel {
   private seekParam: { Time: number };
   /** シーク中かどうか */
   private isSeeking: boolean;
-  /** 消しゴムモードを変更したかどうか */
-  private changeEraserMode: boolean;
 
   /**
    * コンストラクタ
@@ -105,7 +103,6 @@ class ControlPanel {
     };
     this.seekParam = { Time: 0 };
     this.isSeeking = false;
-    this.changeEraserMode = false;
   }
 
   /**
@@ -224,12 +221,12 @@ class ControlPanel {
       });
 
     tab.pages[1]?.addInput(this.colorParam, "LineColor").on("change", (ev) => {
-      if (this.changeEraserMode) return;
-      saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
-      paintRenderer.setLineColor(ev.value);
-      this.eraserParam.EraserMode = false;
-      this.changeEraserMode = true;
-      this.pane?.refresh();
+      if (this.eraserParam.EraserMode) {
+        paintRenderer.setPrevLineColor(ev.value);
+      } else {
+        saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
+        paintRenderer.setLineColor(ev.value);
+      }
     });
 
     // TODO: 歌詞のサイズ
@@ -263,10 +260,17 @@ class ControlPanel {
       .on("change", (ev) => {
         if (ev.value) {
           paintRenderer.setLineColor(theme.color.blackboard);
+          const eraser = safetyGetElementById("eraser");
+          eraser.style.borderStyle = "dashed";
+          eraser.style.borderColor = "red";
+          eraser.style.borderWidth = "4px";
         } else {
           paintRenderer.setLineColor(this.colorParam.LineColor);
+          const eraser = safetyGetElementById("eraser");
+          eraser.style.borderStyle = "";
+          eraser.style.borderColor = "";
+          eraser.style.borderWidth = "";
         }
-        this.changeEraserMode = false;
       });
 
     // セパレータの追加
@@ -333,8 +337,6 @@ class ControlPanel {
    */
   public changeColorPicker(color: string): void {
     this.colorParam.LineColor = color;
-    this.eraserParam.EraserMode = false;
-    this.changeEraserMode = true;
     // UIの反映
     this.pane?.refresh();
   }
@@ -343,8 +345,7 @@ class ControlPanel {
    * 消しゴムモードに切り替え
    */
   public onEraserMode(): void {
-    this.eraserParam.EraserMode = true;
-    this.changeEraserMode = true;
+    this.eraserParam.EraserMode = !this.eraserParam.EraserMode;
     // UIの反映
     this.pane?.refresh();
   }
