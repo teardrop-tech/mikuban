@@ -80,6 +80,8 @@ class ControlPanel {
   private seekParam: { Time: number };
   /** シーク中かどうか */
   private isSeeking: boolean;
+  /** 消しゴムモードを変更したかどうか */
+  private changeEraserMode: boolean;
 
   /**
    * コンストラクタ
@@ -103,6 +105,7 @@ class ControlPanel {
     };
     this.seekParam = { Time: 0 };
     this.isSeeking = false;
+    this.changeEraserMode = false;
   }
 
   /**
@@ -221,9 +224,11 @@ class ControlPanel {
       });
 
     tab.pages[1]?.addInput(this.colorParam, "LineColor").on("change", (ev) => {
+      if (this.changeEraserMode) return;
       saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
       paintRenderer.setLineColor(ev.value);
       this.eraserParam.EraserMode = false;
+      this.changeEraserMode = true;
       this.pane?.refresh();
     });
 
@@ -261,6 +266,7 @@ class ControlPanel {
         } else {
           paintRenderer.setLineColor(this.colorParam.LineColor);
         }
+        this.changeEraserMode = false;
       });
 
     // セパレータの追加
@@ -328,15 +334,17 @@ class ControlPanel {
   public changeColorPicker(color: string): void {
     this.colorParam.LineColor = color;
     this.eraserParam.EraserMode = false;
+    this.changeEraserMode = true;
     // UIの反映
     this.pane?.refresh();
   }
 
   /**
-   * 消しゴムモードの切り替え
+   * 消しゴムモードに切り替え
    */
-  public toggleEraserMode(): void {
-    this.eraserParam.EraserMode = !this.eraserParam.EraserMode;
+  public onEraserMode(): void {
+    this.eraserParam.EraserMode = true;
+    this.changeEraserMode = true;
     // UIの反映
     this.pane?.refresh();
   }
