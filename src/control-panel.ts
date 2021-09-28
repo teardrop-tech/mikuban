@@ -199,6 +199,22 @@ class ControlPanel {
         saveConfigValue(PanelConfig.VOLUME, volume.toString());
       });
 
+    tab.pages[1]?.addInput(this.colorParam, "LineColor").on("change", (ev) => {
+      if (this.eraserParam.EraserMode) {
+        paintRenderer.setPrevLineColor(ev.value);
+      } else {
+        saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
+        paintRenderer.setLineColor(ev.value);
+      }
+    });
+
+    tab.pages[1]
+      ?.addInput(this.colorParam, "LyricsColor")
+      .on("change", (ev) => {
+        saveConfigValue(PanelConfig.LYRICS_COLOR, ev.value);
+        lyricsRenderer.setColor(ev.value);
+      });
+
     tab.pages[1]
       ?.addInput(this.eraserParam, "EraserMode")
       .on("change", (ev) => {
@@ -240,15 +256,6 @@ class ControlPanel {
         paintRenderer.setLineWidth(ev.value);
       });
 
-    tab.pages[1]?.addInput(this.colorParam, "LineColor").on("change", (ev) => {
-      if (this.eraserParam.EraserMode) {
-        paintRenderer.setPrevLineColor(ev.value);
-      } else {
-        saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
-        paintRenderer.setLineColor(ev.value);
-      }
-    });
-
     // TODO: LyricsSize
     // tab.pages[1]
     //   ?.addInput(
@@ -267,13 +274,6 @@ class ControlPanel {
     //     saveConfigValue(PanelConfig.LYRICS_SIZE, size.toString());
     //     lyricsRenderer.setFontSize(size);
     //   });
-
-    tab.pages[1]
-      ?.addInput(this.colorParam, "LyricsColor")
-      .on("change", (ev) => {
-        saveConfigValue(PanelConfig.LYRICS_COLOR, ev.value);
-        lyricsRenderer.setColor(ev.value);
-      });
 
     // セパレータの追加
     tab.pages[1]?.addSeparator();
