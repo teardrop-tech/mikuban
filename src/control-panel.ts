@@ -70,8 +70,6 @@ class ControlPanel {
   private player: Player | null;
   /** 現在選択中のタブ  */
   private currentTabIndex: number;
-  /** 曲変更フラグ */
-  private changeMusicFlg: boolean;
   /** カラーピッカーのパラメータ */
   private colorParam: { LineColor: string; LyricsColor: string };
   /** 消しゴムモードのパラメータ */
@@ -93,7 +91,6 @@ class ControlPanel {
     });
     this.player = null;
     this.currentTabIndex = 0;
-    this.changeMusicFlg = false;
     this.colorParam = {
       LineColor: loadConfigValue(PanelConfig.LINE_COLOR),
       LyricsColor: loadConfigValue(PanelConfig.LYRICS_COLOR),
@@ -150,7 +147,6 @@ class ControlPanel {
         player.requestStop();
         player.createFromSongUrl(ev.value);
         saveConfigValue(PanelConfig.MUSIC, ev.value);
-        this.changeMusicFlg = true;
         // ローディングの表示
         safetyGetElementById("loading").classList.remove("loaded");
       });
@@ -203,25 +199,41 @@ class ControlPanel {
         saveConfigValue(PanelConfig.VOLUME, volume.toString());
       });
 
+    tab.pages[1]?.addInput(this.colorParam, "LineColor").on("change", (ev) => {
+      if (this.eraserParam.EraserMode) {
+        paintRenderer.setPrevLineColor(ev.value);
+      } else {
+        saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
+        paintRenderer.setLineColor(ev.value);
+      }
+    });
+
+    tab.pages[1]
+      ?.addInput(this.colorParam, "LyricsColor")
+      .on("change", (ev) => {
+        saveConfigValue(PanelConfig.LYRICS_COLOR, ev.value);
+        lyricsRenderer.setColor(ev.value);
+      });
+
     tab.pages[1]
       ?.addInput(this.eraserParam, "EraserMode")
       .on("change", (ev) => {
         if (ev.value) {
           paintRenderer.setLineColor(theme.color.blackboard);
+          // HACK
           const eraser = safetyGetElementById("eraser");
           eraser.style.borderStyle = "dashed";
           eraser.style.borderColor = "red";
           eraser.style.borderWidth = "4px";
-
           const cursor = safetyGetElementById("three");
           cursor.style.cursor = "url(../icon/eraser-fill.png), auto";
         } else {
           paintRenderer.setLineColor(this.colorParam.LineColor);
+          // HACK
           const eraser = safetyGetElementById("eraser");
           eraser.style.borderStyle = "";
           eraser.style.borderColor = "";
           eraser.style.borderWidth = "";
-
           const cursor = safetyGetElementById("three");
           cursor.style.cursor = "url(../icon/pencil-line.png), auto";
         }
@@ -244,16 +256,7 @@ class ControlPanel {
         paintRenderer.setLineWidth(ev.value);
       });
 
-    tab.pages[1]?.addInput(this.colorParam, "LineColor").on("change", (ev) => {
-      if (this.eraserParam.EraserMode) {
-        paintRenderer.setPrevLineColor(ev.value);
-      } else {
-        saveConfigValue(PanelConfig.LINE_COLOR, ev.value);
-        paintRenderer.setLineColor(ev.value);
-      }
-    });
-
-    // TODO: 歌詞のサイズ
+    // TODO: LyricsSize
     // tab.pages[1]
     //   ?.addInput(
     //     {
@@ -271,13 +274,6 @@ class ControlPanel {
     //     saveConfigValue(PanelConfig.LYRICS_SIZE, size.toString());
     //     lyricsRenderer.setFontSize(size);
     //   });
-
-    tab.pages[1]
-      ?.addInput(this.colorParam, "LyricsColor")
-      .on("change", (ev) => {
-        saveConfigValue(PanelConfig.LYRICS_COLOR, ev.value);
-        lyricsRenderer.setColor(ev.value);
-      });
 
     // セパレータの追加
     tab.pages[1]?.addSeparator();
@@ -319,22 +315,6 @@ class ControlPanel {
    */
   public setCurrentTabIndex(index: number): void {
     this.currentTabIndex = index;
-  }
-
-  /**
-   * 曲変更フラグの取得
-   * @returns {boolean} this.changeMusicFlg
-   */
-  public getMusicChangeFlg(): boolean {
-    return this.changeMusicFlg;
-  }
-
-  /**
-   * 曲変更フラグの設定
-   * @param {boolean} flg 曲変更フラグ
-   */
-  public setMusicChangeFlg(flg: boolean): void {
-    this.changeMusicFlg = flg;
   }
 
   /**
