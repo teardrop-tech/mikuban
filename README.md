@@ -6,6 +6,8 @@
 
 Hatsune Miku & Kokuban (Blackboard) Application
 
+## Demo
+
 <https://mikuban.netlify.app>
 
 <details>
@@ -40,10 +42,23 @@ Hatsune Miku & Kokuban (Blackboard) Application
 お気に入りの楽曲の歌詞と共に、オリジナルの「みくばんアート」を創造し、  
 年に一度の祭典を一緒に盛り上げよう！
 
-## 推奨環境
+## 特徴
 
-PC  
-※スマートフォンでも動作しますが、端末や OS によっては正しく動作しない場合があります。
+- 観るだけではなく Web のインタラクティブを生かした「体験」ができる
+- 黒板をコンセプトにした世界観
+- 描ける線をチョーク調に
+- 楽曲情報を用いた日直風表示
+- 歌詞の色、線の色・太さのカスタマイズ機能
+- 描いた作品をスクリーンショットとして保存できる
+
+## 動作確認済み環境
+
+※スマートフォンでも動作しますが、端末や OS、端末のサイズ によっては正しく動作しない場合があります。
+
+- Windows : Edge、Google Chrome、Firefox
+- Mac : Safari、Google Chrome
+- Android : Google Chrome
+- iOS : Safari、Google Chrome
 
 ## 開発者向け
 
@@ -88,3 +103,11 @@ npx -y serve dist
 ```
 
 Open <http://localhost:5000>
+
+## Licence
+
+- [TextAlive App API](https://github.com/TextAliveJp/textalive-app-api/blob/master/LICENSE.md)
+- [Tweakpane](https://github.com/cocopon/tweakpane)
+- [icon](https://remixicon.com/)
+- [font](https://fonts.google.com/specimen/Yusei+Magic)
+- [Loading Display](https://dubdesign.net/download/html-css/htmlcss-loading8/)
