@@ -103,3 +103,11 @@ npx -y serve dist
 ```
 
 Open <http://localhost:5000>
+
+## Licence
+
+- [TextAlive App API](https://github.com/TextAliveJp/textalive-app-api/blob/master/LICENSE.md)
+- [Tweakpane](https://github.com/cocopon/tweakpane)
+- [icon](https://remixicon.com/)
+- [font](https://fonts.google.com/specimen/Yusei+Magic)
+- [Loading Display](https://dubdesign.net/download/html-css/htmlcss-loading8/)
