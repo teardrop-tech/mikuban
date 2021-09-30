@@ -6,6 +6,8 @@
 
 Hatsune Miku & Kokuban (Blackboard) Application
 
+![sample](https://user-images.githubusercontent.com/46653688/135468962-9503eccc-fded-4a12-b28f-3310844039a2.png)
+
 ## Demo
 
 <https://mikuban.netlify.app>
@@ -50,6 +52,38 @@ Hatsune Miku & Kokuban (Blackboard) Application
 - 楽曲情報を用いた日直風表示
 - 歌詞の色、線の色・太さのカスタマイズ機能
 - 描いた作品をスクリーンショットとして保存できる
+
+## 機能説明
+
+### Menu > Music
+
+![image](https://user-images.githubusercontent.com/46653688/135469580-3f2036eb-3989-40ef-a721-93be1353f296.png)
+
+- Songs : 楽曲の選択ができます。
+- Play : 楽曲の再生ができます。
+- Pause : 楽曲の一時停止ができます。
+- Stop : 楽曲の停止ができます。
+- Volume : 楽曲の音量の変更ができます。
+- Time(秒) : シークバーになっており、再生位置の変更が可能です。
+
+### Menu > Paint
+
+![image](https://user-images.githubusercontent.com/46653688/135469637-6bb5e709-f7a3-4f5c-a3db-2f3bd88d4f80.png)
+
+- LineColor : 線の色を変更できます。クリックするとカラーピッカーが表示されます。
+- LyricsColor : 歌詞の色を変更できます。クリックするとカラーピッカーが表示されます。既に歌詞が表示されている場合は、次の歌詞から反映されます。
+- EraserMode : クリックすると消しゴムモードに変更できます。もう一度クリックすると消しゴムモードを解除できます。
+- LineWidth : 線の太さを変更できます。
+- ClearPaint : 描いた線を全てクリアします。
+- ScreenShot : 描いた作品を画像データとして保存できます(※Menu はスクリーンショットには写りません。)
+- Tweet : Twitter のツイートに遷移します。保存したスクリーンショットをツイートすることができます。
+
+### その他
+
+![image](https://user-images.githubusercontent.com/46653688/135469787-972f2be2-9dc8-4f47-b48f-593a48ce11a2.png)
+
+- 黒板消しをクリックすると消しゴムモードの On/Off ができます。消しゴムモード中は赤枠で強調表示されます。
+- 各種チョークをクリックすると、そのチョークの色に線の色が変更されます。
 
 ## 動作確認済み環境
 
